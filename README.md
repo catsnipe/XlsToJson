@@ -9,7 +9,7 @@ unity2017 or later
 npoi2.5.1 or later  
 
 ## usage
-1. Download sample project and open `SampleScene.unity`.
+1. Download sample project and open.
 2. Right click on Sample.xlsx and `XlsToJson Settings...`.
 3. Click 'CREATE Importer'.  
    Source code is automatically generated.  
