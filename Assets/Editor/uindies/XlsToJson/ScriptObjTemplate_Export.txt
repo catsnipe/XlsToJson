@@ -1,0 +1,96 @@
+﻿using System.IO;
+using NPOI.SS.UserModel;
+using UnityEditor;
+using UnityEngine;
+
+public class ScriptObj_$$SHEET_NAME$$_Export
+{
+    static readonly string sheetName  = "$$SHEET_ORG$$";
+    static readonly string exportPath = "$$EXPORT_PATH$$";
+
+    public static void Exec(IWorkbook srcbook, IWorkbook newbook, string exportDirectory)
+    {
+        string filepath = Path.Combine(exportDirectory, exportPath);
+        var    data     = ($$TABLE_NAME$$)AssetDatabase.LoadAssetAtPath(filepath, typeof($$TABLE_NAME$$));
+        if (data == null)
+        {
+            return;
+        }
+
+        var srcsheet = srcbook.GetSheet(sheetName);
+        var newsheet = newbook.CreateSheet(sheetName);
+
+        int startTableLine = -1;
+        int newLineno = 0;
+        int columnno  = 0;
+
+        for (int i = 0; i <= srcsheet.LastRowNum; i++)
+        {
+            // update table data of xls by ScriptableObject's data
+            if (startTableLine >= 0 && i >= startTableLine + 2)
+            {
+                addRow(data, newsheet, ref newLineno);
+
+                // skip original data
+                for (int j = i; j <= srcsheet.LastRowNum; j++)
+                {
+                    IRow srow = srcsheet.GetRow(j);
+                    if (srow == null || srow.LastCellNum < 0)
+                    {
+                        startTableLine = -1;
+                        i = j-1;
+                        break;
+                    }
+                    if (j == srcsheet.LastRowNum)
+                    {
+                        startTableLine = -1;
+                        i = j;
+                        break;
+                    }
+                }
+
+                continue;
+            }
+
+            IRow newrow = newsheet.CreateRow(newLineno++);
+            var srcrow = srcsheet.GetRow(i);
+            if (srcrow == null)
+            {
+                continue;
+            }
+
+            ExcelRow.CopyRow(srcrow, newrow);
+
+            if (srcrow != null && srcrow.GetCell(0) != null && srcrow.GetCell(0).ToString() == XlsToJson.TRIGGER_ID)
+            {
+                startTableLine = i;
+                columnno = srcrow.LastCellNum;
+            }
+        }
+
+        // 元のエクセルがデータ空っぽの場合
+        if (startTableLine + 2 > srcsheet.LastRowNum)
+        {
+            addRow(data, newsheet, ref newLineno);
+        }
+
+        for (int i = 0; i < columnno; i++)
+        {
+            newsheet.AutoSizeColumn(i, true);
+        }
+    }
+
+    static void addRow($$TABLE_NAME$$ data, ISheet newsheet, ref int newLineno)
+    {
+        IRow newrow;
+
+        foreach (var row in data.Rows)
+        {
+            newrow   = newsheet.CreateRow(newLineno++);
+            var erow = new ExcelRow(newrow);
+            int c = 0;
+
+$$EXPORT_ROW$$
+        }
+    }
+}

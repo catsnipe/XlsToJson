@@ -1,0 +1,49 @@
+﻿using System.IO;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using UnityEditor;
+
+public class AllScriptObj_$$EXCELL_NAME$$_Import
+{
+    static readonly string excellFilename  = "$$EXCELL_FILENAME$$";
+    static readonly string exportDirectory = "$$EXPORT_DIRECTORY$$";
+
+    const string Item = "Tools/XlsToJson/[Create] ScriptableObject";
+
+    [MenuItem ("Tools/XlsToJson/[ScriptableObject]", false, 21)]
+    static void Title() {}
+
+    [MenuItem ("Tools/XlsToJson/[ScriptableObject]", true)]
+    static bool TitleValidate() { return false; }
+
+    [MenuItem (Item, priority = 22)]
+    static void Open()
+    {
+        var excellDirectory = XlsToJson.SearchXlsDirectory(excellFilename);
+        var xlsPath = Path.Combine(excellDirectory, excellFilename);
+
+        //if (XlsToJson.DialogSelect(XlsToJson.MSG_SCRIPTOBJ_IMPORT_CONFIRM, xlsPath) == false)
+        //{
+        //    return;
+        //}
+
+        using (FileStream stream = File.Open (xlsPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        {
+            IWorkbook book = null;
+            if (Path.GetExtension(xlsPath) == ".xls")
+            {
+                book = new HSSFWorkbook(stream);
+            }
+            else
+            {
+                book = new XSSFWorkbook(stream);
+            }
+
+            XlsToJson.CompleteDirectory(exportDirectory);
+
+            // table list
+$$IMPORT_EXEC_LIST$$
+        }
+    }
+}

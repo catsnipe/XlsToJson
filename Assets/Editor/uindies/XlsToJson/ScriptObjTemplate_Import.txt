@@ -1,0 +1,80 @@
+﻿using System.Collections.Generic;
+using System.IO;
+using NPOI.SS.UserModel;
+using NPOI.HSSF.UserModel;
+using NPOI.XSSF.UserModel;
+using UnityEditor;
+using UnityEngine;
+
+public class ScriptObj_$$SHEET_NAME$$_Import
+{
+    static readonly string sheetName  = "$$SHEET_ORG$$";
+    static readonly string exportPath = "$$EXPORT_PATH$$";
+
+    public static void Exec(IWorkbook book, string exportDirectory)
+    {
+        var exportFilepath = Path.Combine(exportDirectory, exportPath);
+
+        var data = ($$TABLE_NAME$$)AssetDatabase.LoadAssetAtPath(exportFilepath, typeof($$TABLE_NAME$$));
+        if (data == null)
+        {
+            data = ScriptableObject.CreateInstance<$$TABLE_NAME$$>();
+            AssetDatabase.CreateAsset((ScriptableObject)data, exportFilepath);
+        }
+        data.hideFlags = HideFlags.None;
+        data.Rows.Clear();
+
+        // check sheet
+        var sheet = book.GetSheet(sheetName);
+        if (sheet == null)
+        {
+            Debug.LogError($"sheet is not found. '{sheetName}'");
+            return;
+        }
+
+        var posList = new Dictionary<string, XlsToJson.PosIndex>();
+        string[,] grid = XlsToJson.GetGrid(sheet, posList);
+        XlsToJson.PosIndex id = posList[XlsToJson.TRIGGER_ID];
+
+        XlsToJson.GetGameAssembly();
+
+        for (int r = id.R + 2; r < grid.GetUpperBound(0)+1; r++)
+        {
+            var row = new $$TABLE_NAME$$.Row();
+            int c = id.C;
+
+            string cell = grid[r, c];
+
+            // End of line
+            if (string.IsNullOrEmpty(cell) == true)
+            {
+                break;
+            }
+            // Comment
+            if (XlsToJson.CheckSignComment(cell) == true)
+            {
+                continue;
+            }
+
+$$IMPORT_ROW$$
+            data.Rows.Add(row);
+        }
+
+        // save scriptable object
+        ScriptableObject obj = AssetDatabase.LoadAssetAtPath(exportFilepath, typeof(ScriptableObject)) as ScriptableObject;
+        EditorUtility.SetDirty(obj);
+
+        Debug.Log($"[XlsToJson] create '{exportPath}'.");
+    }
+
+    static bool import(int r, int c, string cell, bool success)
+    {
+        if (success == false)
+        {
+            Debug.LogError($"[{XlsToJson.GetXLS_RC(r, c)}] '{cell}' import error!");
+            return false;
+        }
+        return true;
+    }
+
+}

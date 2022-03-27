@@ -1,0 +1,52 @@
+﻿using System.IO;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using UnityEditor;
+
+public class AllJson_$$EXCELL_NAME$$_Export
+{
+    static readonly string excellFilename  = "$$EXCELL_FILENAME$$";
+    static readonly string exportDirectory = "$$EXPORT_DIRECTORY$$";
+
+    const string Item = "Tools/XlsToJson/[Xlsx Update] JsonData -> $$EXCELL_FILENAME$$";
+
+    [MenuItem (Item, priority = 3)]
+    static void Open()
+    {
+        IWorkbook srcbook;
+        IWorkbook newbook;
+
+        var excellDirectory = XlsToJson.SearchXlsDirectory(excellFilename);
+        var xlsPath = Path.Combine(excellDirectory, excellFilename);
+
+        if (XlsToJson.DialogSelect(XlsToJson.MSG_JSON_EXPORT_CONFIRM, xlsPath) == false)
+        {
+            return;
+        }
+
+        using (FileStream stream = new FileStream(xlsPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        {
+            srcbook = new XSSFWorkbook(stream);
+            stream.Close();
+        }
+        newbook = new XSSFWorkbook();
+
+        // for AutoSizeColumn(jp)
+        ICellStyle cellStyle = newbook.CreateCellStyle();
+        IFont font           = newbook.CreateFont();
+        font.FontName        = "Serif";
+        cellStyle.SetFont(font);
+
+        // table list
+$$EXPORT_EXEC_LIST$$
+        File.Delete(xlsPath);
+
+        using (FileStream stream = new FileStream(xlsPath, FileMode.OpenOrCreate, FileAccess.Write))
+        {
+            newbook.Write(stream);
+            stream.Close();
+        }
+
+    }
+
+}

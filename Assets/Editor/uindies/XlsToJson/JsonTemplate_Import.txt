@@ -1,0 +1,78 @@
+﻿using System.Collections.Generic;
+using System.IO;
+using NPOI.SS.UserModel;
+using UnityEditor;
+using UnityEngine;
+
+public class Json_$$SHEET_NAME$$_Import
+{
+    static readonly string sheetName  = "$$SHEET_ORG$$";
+    static readonly string exportPath = "$$EXPORT_PATH$$";
+
+    public static void Exec(IWorkbook book, string exportDirectory)
+    {
+        var exportFilepath = Path.Combine(exportDirectory, exportPath);
+
+        var data = new Wrapper();
+
+        // check sheet
+        var sheet = book.GetSheet(sheetName);
+        if (sheet == null)
+        {
+            Debug.LogError($"sheet is not found. '{sheetName}'");
+            return;
+        }
+
+        var posList = new Dictionary<string, XlsToJson.PosIndex>();
+        string[,] grid = XlsToJson.GetGrid(sheet, posList);
+        XlsToJson.PosIndex id = posList[XlsToJson.TRIGGER_ID];
+
+        XlsToJson.GetGameAssembly();
+
+        for (int r = id.R + 2; r < grid.GetUpperBound(0)+1; r++)
+        {
+            var row = new $$TABLE_NAME$$.Row();
+            int c = id.C;
+
+            string cell = grid[r, c];
+
+            // End of line
+            if (string.IsNullOrEmpty(cell) == true)
+            {
+                break;
+            }
+            // Comment
+            if (XlsToJson.CheckSignComment(cell) == true)
+            {
+                continue;
+            }
+
+$$IMPORT_ROW$$
+            data.Rows.Add(row);
+        }
+
+        // save json
+        string json = JsonUtility.ToJson(data, true);
+        File.WriteAllText(exportFilepath, json, System.Text.Encoding.UTF8);
+        AssetDatabase.ImportAsset(exportFilepath);
+
+        Debug.Log($"[XlsToJson] create '{exportPath}'.");
+    }
+
+    [System.Serializable]
+    public class Wrapper
+    {
+        public List<$$TABLE_NAME$$.Row> Rows = new List<$$TABLE_NAME$$.Row>();
+    }
+
+    static bool import(int r, int c, string cell, bool success)
+    {
+        if (success == false)
+        {
+            Debug.LogError($"[{XlsToJson.GetXLS_RC(r, c)}] '{cell}' import error!");
+            return false;
+        }
+        return true;
+    }
+
+}
