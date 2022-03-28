@@ -35,7 +35,17 @@ public partial class XlsToJsonTemplate_Access
     /// </summary>
     public static void SetTable(Object obj)
     {
-        table = obj as XlsToJsonTemplate_Class;
+        if (obj is TextAsset)
+        {
+            // Json
+            table = XlsToJsonTemplate_Class.CreateInstance();
+            table.SetRowsByJson(obj.ToString());
+        }
+        else
+        {
+            // Scriptable Object
+            table = obj as XlsToJsonTemplate_Class;
+        }
     }
 
     /// <summary>

@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using NPOI.SS.UserModel;
 using UnityEditor;
-using UnityEngine;
 
 public class ScriptObj_$$SHEET_NAME$$_Export
 {

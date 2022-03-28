@@ -66,6 +66,8 @@ public partial class XlsToJson : EditorWindow
     const string CLASSTMPL_TABLE_ENDSIGN    = "//$$REGION_END TABLE$$";
     const string CTMPL_INDEX_SIGN           = "//$$REGION INDEX$$";
     const string CTMPL_INDEX_ENDSIGN        = "//$$REGION END_INDEX$$";
+    const string CTMPL_INDEX_NULL_SIGN      = "//$$REGION INDEX_NULL$$";
+    const string CTMPL_INDEX_NULL_ENDSIGN   = "//$$REGION END_INDEX_NULL$$";
     const string CTMPL_INDEX_FIND_SIGN      = "//$$REGION INDEX_FIND$$";
     const string CTMPL_INDEX_FIND_ENDSIGN   = "//$$REGION END_INDEX_FIND$$";
 

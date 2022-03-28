@@ -14,6 +14,15 @@ public class XlsToJsonTemplate_Class : ScriptableObject
 //$$REGION_END ENUM$$
 //$$REGION CONST$$
 //$$REGION_END CONST$$
+    /// <summary>
+    /// Wrapper for JsonUtility
+    /// </summary>
+    [System.Serializable]
+    public class Wrapper
+    {
+        public List<Row> Rows = new List<Row>();
+    }
+
 //$$REGION CLASS$$
     /// <summary>
     /// １行分のフィールドリスト
@@ -43,13 +52,32 @@ public class XlsToJsonTemplate_Class : ScriptableObject
 //$$REGION END_INDEX$$
 
     /// <summary>
+    /// factory: create instance
+    /// </summary>
+    /// <returns></returns>
+    public static XlsToJsonTemplate_Class CreateInstance()
+    {
+        return Object.Instantiate(ScriptableObject.CreateInstance<XlsToJsonTemplate_Class>());
+    }
+
+    /// <summary>
     /// .ctor
     /// </summary>
     public XlsToJsonTemplate_Class()
     {
-        Rows      = new List<Row>();
+        Rows = new List<Row>();
     }
     
+    /// <summary>
+    /// set json data
+    /// </summary>
+    public void SetRowsByJson(string json)
+    {
+        Rows = JsonUtility.FromJson<Wrapper>(json).Rows;
+//$$REGION INDEX_NULL$$
+//$$REGION END_INDEX_NULL$$
+    }
+
     /// <summary>
     /// 行を配列順で取得する
     /// </summary>

@@ -34,6 +34,9 @@ public partial class XlsToJson : EditorWindow
             return null;
         }
 
+        int padding        = 0;
+        int padding_key    = 0;
+
         // enum
         var sb_enum        = new StringBuilder();
         var sb_global_enum = new StringBuilder();
@@ -77,6 +80,22 @@ public partial class XlsToJson : EditorWindow
 
         // const
         var sb_const = new StringBuilder();
+
+        foreach (var pair in consts)
+        {
+            foreach (var member in pair.Value.Members)
+            {
+                if (padding < member.Value.Type.Length)
+                {
+                    padding = member.Value.Type.Length;
+                }
+                if (padding_key < member.Key.Length)
+                {
+                    padding_key = member.Key.Length;
+                }
+            }
+        }
+
         foreach (var pair in consts)
         {
             StringBuilder sb     = sb_const;
@@ -106,16 +125,16 @@ public partial class XlsToJson : EditorWindow
                         Debug.LogError($"(possible type) int, float, string");
                         break;
                 }
-                sb.AppendLine($"{indent}public const {member.Value.Type} {member.Key} = {value};");
+                sb.AppendLine($"{indent}public const {member.Value.Type.PadRight(padding)} {member.Key.PadRight(padding_key)} = {value};");
             }
         }
         sb_const.AppendLine("");
 
         var sb_class      = new StringBuilder();
         var sb_index      = new StringBuilder();
+        var sb_index_null = new StringBuilder();
         var sb_index_find = new StringBuilder();
         var tableNames    = new Dictionary<string, string>();
-        int padding       = 0;
 
         foreach (var entity in sheetList)
         {
@@ -175,6 +194,7 @@ public partial class XlsToJson : EditorWindow
                     string name = $"{member.Key}Rows";
 
                     sb_index.AppendLine($"\tDictionary<{type}, Row> {name};");
+                    sb_index_null.AppendLine($"\t\t{name} = null;");
                     sb_index_find.AppendLine( "\t/// <summary>");
                     sb_index_find.AppendLine($"\t/// {member.Key}");
                     sb_index_find.AppendLine( "\t/// </summary>");
@@ -215,12 +235,14 @@ public partial class XlsToJson : EditorWindow
         text = text.Replace(CLASSTMPL_CONST_ENDSIGN + "\r\n", sb_const.ToString());
         text = text.Replace(CLASSTMPL_CLASS_ENDSIGN + "\r\n", sb_class.ToString());
         text = text.Replace(CTMPL_INDEX_ENDSIGN + "\r\n", sb_index.ToString());
+        text = text.Replace(CTMPL_INDEX_NULL_ENDSIGN + "\r\n", sb_index_null.ToString());
         text = text.Replace(CTMPL_INDEX_FIND_ENDSIGN + "\r\n", sb_index_find.ToString());
         text = text.Replace(CLASSTMPL_GENUM_SIGN + "\r\n", "");
         text = text.Replace(CLASSTMPL_ENUM_SIGN + "\r\n", "");
         text = text.Replace(CLASSTMPL_CONST_SIGN + "\r\n", "");
         text = text.Replace(CLASSTMPL_CLASS_SIGN + "\r\n", "");
         text = text.Replace(CTMPL_INDEX_SIGN + "\r\n", "");
+        text = text.Replace(CTMPL_INDEX_NULL_SIGN + "\r\n", "");
         text = text.Replace(CTMPL_INDEX_FIND_SIGN + "\r\n", "");
         if (report.Classes.Count == 0 && sb_enum.Length == 0 && sb_const.Length == 0)
         {
