@@ -6,3 +6,8 @@
 /Logs
 /.vs
 /*.sln
+/*.user
+~*.xlsx
+~*.xlsx.meta
+/Assets/Resources
+/Assets/Editor/uindies/XlsToJson/importer
