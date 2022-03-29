@@ -11,7 +11,10 @@ public partial class XlsToJson : EditorWindow
 {
     static Assembly asm = null;
 
-    public static void GetGameAssembly()
+    /// <summary>
+    /// リフレクション操作アセンブリ初期化（取得）
+    /// </summary>
+    public static void InitAssembly()
     {
         try
         {
@@ -107,6 +110,31 @@ public partial class XlsToJson : EditorWindow
     }
 
     /// <summary>
+    /// long 値を取得。空欄は 0
+    /// </summary>
+    public static bool GetLong(string sval, out long val)
+    {
+        if (string.IsNullOrEmpty(sval) == true)
+        {
+            val = 0;
+        }
+        else
+        {
+            if (long.TryParse(sval, out val) == false)
+            {
+                object o = getConstValue(sval);
+                if (o == null)
+                {
+                    Debug.LogError($"{sval} is not value.");
+                    return false;
+                }
+                long.TryParse(o.ToString(), out val);
+            }
+        }
+        return true;
+    }
+
+    /// <summary>
     /// bool 値を取得。空欄は false
     /// </summary>
     public static bool GetBool(string sval, out bool val)
@@ -147,6 +175,56 @@ public partial class XlsToJson : EditorWindow
                     return false;
                 }
                 float.TryParse(o.ToString(), out val);
+            }
+        }
+        return true;
+    }
+    
+    /// <summary>
+    /// double 値を取得。空欄は 0
+    /// </summary>
+    public static bool GetDouble(string sval, out double val)
+    {
+        if (string.IsNullOrEmpty(sval) == true)
+        {
+            val = 0;
+        }
+        else
+        {
+            if (double.TryParse(sval, out val) == false)
+            {
+                object o = getConstValue(sval);
+                if (o == null)
+                {
+                    Debug.LogError($"{sval} is not value.");
+                    return false;
+                }
+                double.TryParse(o.ToString(), out val);
+            }
+        }
+        return true;
+    }
+    
+    /// <summary>
+    /// decimal 値を取得。空欄は 0
+    /// </summary>
+    public static bool GetDecimal(string sval, out decimal val)
+    {
+        if (string.IsNullOrEmpty(sval) == true)
+        {
+            val = 0;
+        }
+        else
+        {
+            if (decimal.TryParse(sval, out val) == false)
+            {
+                object o = getConstValue(sval);
+                if (o == null)
+                {
+                    Debug.LogError($"{sval} is not value.");
+                    return false;
+                }
+                decimal.TryParse(o.ToString(), out val);
             }
         }
         return true;

@@ -135,7 +135,7 @@ public partial class XlsToJson : EditorWindow
     static readonly string MSG_USE_SAME_CLASS        = "{0} がベースクラスとして適用されます.";
     static readonly string MSG_SHEETNAME_CANT_JP     = "{0}: 日本語名のシートは無視します.";
     static readonly string MSG_NEED_AUTONUMBER_FIELD = "{0}: オートナンバーフィールド ID(int) がありません.";
-    static readonly string MSG_NOT_FOUND_ENUMTBL     = "{0}: enum で存在しないシート名が指定されています.";
+    static readonly string MSG_NOT_FOUND_ENUMTBL     = "{0}: enum でエクセルに存在しないクラス名が指定されています.";
     static readonly string MSG_CREATE_ACCESS         = "*データのシングルトンアクセスを可能にします";
     static readonly string MSG_BASECLASS_NOTFOUND    = "{0}: ベースクラス [{1}] がありません.";
     static readonly string MSG_BASECLASS_UNMATCH     = "{0}: ベースクラス [{1}] とテーブルの型が異なります.";
@@ -169,6 +169,8 @@ public partial class XlsToJson : EditorWindow
     /// </summary>
     class Member
     {
+        /// <summary>フィールド名</summary>
+        public string FieldName;
         /// <summary>型</summary>
         public string Type;
         /// <summary>追加後尾文字列</summary>
@@ -246,15 +248,13 @@ public partial class XlsToJson : EditorWindow
             }
             else
             {
-                foreach (var cls in Classes)
+                var cls = Classes[CLASSTMPL_ROW];
+
+                foreach (var member in cls.Members)
                 {
-                    sb.Append(cls.Key + " ");
-                    foreach (var member in cls.Value.Members)
-                    {
-                        sb.Append(member.Key + " ");
-                        sb.Append(member.Value.Type + " ");
-                        sb.Append(member.Value.Suffix + " ");
-                    }
+                    sb.Append(member.Value.FieldName + " ");
+                    sb.Append(member.Value.Type + " ");
+                    sb.Append(member.Value.Suffix + " ");
                 }
 
                 SHA256CryptoServiceProvider hashProvider = new SHA256CryptoServiceProvider();

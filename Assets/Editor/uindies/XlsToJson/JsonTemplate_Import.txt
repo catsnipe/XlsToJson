@@ -27,7 +27,7 @@ public class Json_$$SHEET_NAME$$_Import
         string[,] grid = XlsToJson.GetGrid(sheet, posList);
         XlsToJson.PosIndex id = posList[XlsToJson.TRIGGER_ID];
 
-        XlsToJson.GetGameAssembly();
+        XlsToJson.InitAssembly();
 
         for (int r = id.R + 2; r < grid.GetUpperBound(0)+1; r++)
         {

@@ -186,6 +186,7 @@ public partial class XlsToJson : EditorWindow
 
         for (c = id.C; c < grid.GetUpperBound(1)+1; c++)
         {
+            string field   = grid[id.R, c];
             string name    = grid[id.R, c];
             bool   indexer = false;
             bool   isenum  = false;
@@ -219,8 +220,9 @@ public partial class XlsToJson : EditorWindow
                     if (classes[parentClassName].Members.ContainsKey(classname) == false)
                     {
                         Member row = new Member();
-                        row.Type   = classname;
-                        row.Suffix = $"= new {classname}()";
+                        row.FieldName = field;
+                        row.Type      = classname;
+                        row.Suffix    = $"= new {classname}()";
                         classes[parentClassName].Members.Add(classname, row);
                     }
                     if (classes.ContainsKey(classname) == false)
@@ -282,12 +284,13 @@ public partial class XlsToJson : EditorWindow
                 else
                 {
                     // List
-                    Member row  = new Member();
-                    row.Type    = typestr;
-                    row.Suffix  = $"= new {typestr}()";
-                    row.Comment = getCommentUp(grid, id.R, c);
-                    row.Indexer = indexer;
-                    row.IsEnum  = isenum;
+                    Member row    = new Member();
+                    row.FieldName = field;
+                    row.Type      = typestr;
+                    row.Suffix    = $"= new {typestr}()";
+                    row.Comment   = getCommentUp(grid, id.R, c);
+                    row.Indexer   = indexer;
+                    row.IsEnum    = isenum;
                     classes[parentClassName].Members.Add(name, row);
                 }
             }
@@ -302,12 +305,13 @@ public partial class XlsToJson : EditorWindow
                 else
                 {
                     // Normal
-                    Member row  = new Member();
-                    row.Type    = typestr;
-                    row.Suffix  = null;
-                    row.Comment = getCommentUp(grid, id.R, c);
-                    row.Indexer = indexer;
-                    row.IsEnum  = isenum;
+                    Member row    = new Member();
+                    row.FieldName = field;
+                    row.Type      = typestr;
+                    row.Suffix    = null;
+                    row.Comment   = getCommentUp(grid, id.R, c);
+                    row.Indexer   = indexer;
+                    row.IsEnum    = isenum;
                     classes[parentClassName].Members.Add(name, row);
                 }
             }

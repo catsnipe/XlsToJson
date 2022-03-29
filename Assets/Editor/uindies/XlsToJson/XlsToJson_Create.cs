@@ -74,7 +74,7 @@ public partial class XlsToJson : EditorWindow
                     sb.AppendLine($"{indent}\t{member.Key} = {row.Suffix},");
                 }
             }
-            sb.AppendLine($"{indent}}};");
+            sb.AppendLine($"{indent}}}");
             sb.AppendLine( "");
         }
 
@@ -117,7 +117,14 @@ public partial class XlsToJson : EditorWindow
                     case "float":
                         value = $"{member.Value.Suffix}f";
                         break;
+                    case "double":
+                        value = $"{member.Value.Suffix}d";
+                        break;
+                    case "decimal":
+                        value = $"{member.Value.Suffix}m";
+                        break;
                     case "int":
+                    case "long":
                         value = $"{member.Value.Suffix}";
                         break;
                     default:
@@ -173,10 +180,12 @@ public partial class XlsToJson : EditorWindow
                     string classname = type.Substring(0, type.IndexOf('.'));
                     if (tableNames.ContainsKey(classname) == false)
                     {
-                        LogError(MSG_NOT_FOUND_ENUMTBL, report.SheetName);
-                        continue;
+                        Log(MSG_NOT_FOUND_ENUMTBL, report.SheetName);
                     }
-                    type = type.Replace(classname, tableNames[classname]);
+                    else
+                    {
+                        type = type.Replace(classname, tableNames[classname]);
+                    }
                 }
 
                 addCommentText(sb_class, row.Comment, 2);
@@ -218,7 +227,7 @@ public partial class XlsToJson : EditorWindow
                     sb_index_find.AppendLine( "");
                 }
             }
-            sb_class.AppendLine( "\t};");
+            sb_class.AppendLine( "\t}");
             sb_class.AppendLine( "");
         }
 
@@ -461,10 +470,12 @@ public partial class XlsToJson : EditorWindow
                     string clsname = typestr.Substring(0, typestr.IndexOf('.'));
                     if (tableNames.ContainsKey(clsname) == false)
                     {
-                        LogError(MSG_NOT_FOUND_ENUMTBL, report.SheetName);
-                        continue;
+                        Log(MSG_NOT_FOUND_ENUMTBL, report.SheetName);
                     }
-                    typestr = typestr.Replace(clsname, tableNames[clsname]);
+                    else
+                    {
+                        typestr = typestr.Replace(clsname, tableNames[clsname]);
+                    }
                 }
             }
             else
@@ -472,16 +483,25 @@ public partial class XlsToJson : EditorWindow
                 switch (typestr)
                 {
                     case "bool":
-                        getFunc = "GetBool  ";
+                        getFunc = "GetBool   ";
                         break;
                     case "int":
-                        getFunc = "GetInt   ";
+                        getFunc = "GetInt    ";
+                        break;
+                    case "long":
+                        getFunc = "GetLong   ";
                         break;
                     case "float":
-                        getFunc = "GetFloat ";
+                        getFunc = "GetFloat  ";
+                        break;
+                    case "double":
+                        getFunc = "GetDouble ";
+                        break;
+                    case "decimal":
+                        getFunc = "GetDecimal";
                         break;
                     case "string":
-                        getFunc = "GetString";
+                        getFunc = "GetString ";
                         break;
                     default:
                         if (string.IsNullOrEmpty(typestr) == false)
