@@ -175,16 +175,19 @@ public partial class XlsToJson : EditorWindow
                 Member row  = member.Value;
                 string type = row.Type;
 
-                if (row.IsEnum == true && type.IndexOf('.') >= 0)
+                if (row.IsEnum == true)
                 {
-                    string classname = type.Substring(0, type.IndexOf('.'));
-                    if (tableNames.ContainsKey(classname) == false)
+                    if (type.IndexOf('.') >= 0)
                     {
-                        Log(MSG_NOT_FOUND_ENUMTBL, report.SheetName);
-                    }
-                    else
-                    {
-                        type = type.Replace(classname, tableNames[classname]);
+                        string classname = type.Substring(0, type.IndexOf('.'));
+                        if (tableNames.ContainsKey(classname) == false)
+                        {
+                            Log(MSG_NOT_FOUND_ENUMTBL, report.SheetName);
+                        }
+                        else
+                        {
+                            type = type.Replace(classname, tableNames[classname]);
+                        }
                     }
                 }
 
@@ -212,8 +215,9 @@ public partial class XlsToJson : EditorWindow
                     sb_index_find.AppendLine($"\t\tif ({name} == null)");
                     sb_index_find.AppendLine( "\t\t{");
                     sb_index_find.AppendLine($"\t\t\t{name} = new Dictionary<{type}, Row>();");
-                    sb_index_find.AppendLine($"\t\t\tRows.ForEach( (row) => {name}.Add(row.{member.Key}, row) );");
+                    sb_index_find.AppendLine($"\t\t\tRows.ForEach( (row) => {{ if ({name}.ContainsKey(row.{member.Key}) == false) {name}.Add(row.{member.Key}, row); }} );");
                     sb_index_find.AppendLine( "\t\t}");
+                    sb_index_find.AppendLine( "\t\t");
                     sb_index_find.AppendLine($"\t\tif ({name}.ContainsKey(val) == false)");
                     sb_index_find.AppendLine( "\t\t{");
                     sb_index_find.AppendLine( "\t\t\tif (errorLog == true)");
@@ -308,7 +312,20 @@ public partial class XlsToJson : EditorWindow
         {
             foreach (var member in pair.Value.Members)
             {
-                Member row = member.Value;
+                Member row  = member.Value;
+                string type = row.Type;
+
+                if (row.IsEnum == true)
+                {
+                    if (type.IndexOf('.') >= 0)
+                    {
+                        //
+                    }
+                    else
+                    {
+                        type = $"{tablename}.{type}";
+                    }
+                }
 
                 if (row.Indexer == true)
                 {
@@ -317,7 +334,7 @@ public partial class XlsToJson : EditorWindow
                     sb_index_find.AppendLine( "\t/// <summary>");
                     sb_index_find.AppendLine($"\t/// {member.Key}");
                     sb_index_find.AppendLine( "\t/// </summary>");
-                    sb_index_find.AppendLine($"\tpublic static {tablename}.Row FindRowBy{member.Key}({row.Type} val, bool errorLog = true)");
+                    sb_index_find.AppendLine($"\tpublic static {tablename}.Row FindRowBy{member.Key}({type} val, bool errorLog = true)");
                     sb_index_find.AppendLine( "\t{");
                     sb_index_find.AppendLine($"\t\treturn table.FindRowBy{member.Key}(val, errorLog);");
                     sb_index_find.AppendLine( "\t}");

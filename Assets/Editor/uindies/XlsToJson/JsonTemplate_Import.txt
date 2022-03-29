@@ -56,7 +56,7 @@ $$IMPORT_ROW$$
         File.WriteAllText(exportFilepath, json, System.Text.Encoding.UTF8);
         AssetDatabase.ImportAsset(exportFilepath);
 
-        Debug.Log($"[XlsToJson] create '{exportPath}'.");
+        Debug.Log($"[XlsToJson] create '{exportFilepath}'.");
     }
 
     [System.Serializable]
