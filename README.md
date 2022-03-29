@@ -31,7 +31,8 @@ npoi2.5.1 or later
 5. After editing Json data, Menu: Tools/XlsToJson/[Xlsx Update] Json Data -> SampleData.xlsx  
    Export Json data to Excel.  
 
-see more detail (japanese): https://www.create-forever.games/xls-to-json/
+see more detail : https://www.create-forever.games/xls-to-json-en/
+see more detail (japanese): https://www.create-forever.games/xls-to-json2/
 
 ## license
 This sample project includes the work that is distributed in the Apache License 2.0 / MIT / MIT X11.  
