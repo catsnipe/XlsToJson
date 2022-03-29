@@ -7,9 +7,6 @@ using UnityEngine;
 /// </summary>
 public class Class_Character : ScriptableObject
 {
-    ///<summary>
-    /// 性別
-    ///</summary>
     public enum Sex
     {
         Female,
@@ -34,13 +31,28 @@ public class Class_Character : ScriptableObject
     public class Row
     {
         ///<summary>
-        /// [ID:必須]
+        /// [ID:required]
         ///</summary>
         public int          ID;
+        ///<summary>
+        /// Number
+        ///</summary>
         public int          CharacterNo;
+        ///<summary>
+        /// Name
+        ///</summary>
         public string       CharacterName;
+        ///<summary>
+        /// Unit(meter)
+        ///</summary>
         public float        Size;
+        ///<summary>
+        /// FriendName List
+        ///</summary>
         public List<string> FriendName = new List<string>();
+        ///<summary>
+        /// Sex
+        ///</summary>
         public Sex          Sex;
     }
 
@@ -109,8 +121,9 @@ public class Class_Character : ScriptableObject
         if (IDRows == null)
         {
             IDRows = new Dictionary<int, Row>();
-            Rows.ForEach( (row) => IDRows.Add(row.ID, row) );
+            Rows.ForEach( (row) => { if (IDRows.ContainsKey(row.ID) == false) IDRows.Add(row.ID, row); } );
         }
+        
         if (IDRows.ContainsKey(val) == false)
         {
             if (errorLog == true)
