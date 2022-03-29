@@ -30,7 +30,7 @@ public partial class XlsToJson : EditorWindow
         if (text == null)
         {
             // テンプレートが見つからない
-            DialogError(MSG_CLASSTMPL_NOTFOUND, template_file);
+            DialogError(eMsg.CLASSTMPL_NOTFOUND, template_file);
             return null;
         }
 
@@ -182,7 +182,7 @@ public partial class XlsToJson : EditorWindow
                         string classname = type.Substring(0, type.IndexOf('.'));
                         if (tableNames.ContainsKey(classname) == false)
                         {
-                            Log(MSG_NOT_FOUND_ENUMTBL, report.SheetName);
+                            Log(eMsg.NOT_FOUND_ENUMTBL, report.SheetName);
                         }
                         else
                         {
@@ -303,7 +303,7 @@ public partial class XlsToJson : EditorWindow
         if (text == null)
         {
             // テンプレートが見つからない
-            DialogError(MSG_CLASSTMPL_NOTFOUND, template_file);
+            DialogError(eMsg.CLASSTMPL_NOTFOUND, template_file);
             return null;
         }
 
@@ -415,7 +415,7 @@ public partial class XlsToJson : EditorWindow
         if (import_text == null || export_text == null)
         {
             // テンプレートが見つからない
-            DialogError(MSG_CLASSTMPL_NOTFOUND, import_file, export_file);
+            DialogError(eMsg.CLASSTMPL_NOTFOUND, import_file, export_file);
             return (null, null);
         }
 
@@ -487,7 +487,7 @@ public partial class XlsToJson : EditorWindow
                     string clsname = typestr.Substring(0, typestr.IndexOf('.'));
                     if (tableNames.ContainsKey(clsname) == false)
                     {
-                        Log(MSG_NOT_FOUND_ENUMTBL, report.SheetName);
+                        Log(eMsg.NOT_FOUND_ENUMTBL, report.SheetName);
                     }
                     else
                     {
@@ -523,7 +523,7 @@ public partial class XlsToJson : EditorWindow
                     default:
                         if (string.IsNullOrEmpty(typestr) == false)
                         {
-                            Log($"no importing member was found. type:{typestr} member:{member}");
+                            Log(eMsg.NOT_IMPORTABLE_TYPE, typestr, member);
                         }
                         getFunc = "GetNull  ";
                         isNull  = true;
@@ -623,7 +623,7 @@ public partial class XlsToJson : EditorWindow
         if (import_text == null || export_text == null)
         {
             // テンプレートが見つからない
-            DialogError(MSG_CLASSTMPL_NOTFOUND, import_file, export_file);
+            DialogError(eMsg.CLASSTMPL_NOTFOUND, import_file, export_file);
             return (null, null);
         }
 

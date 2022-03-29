@@ -60,7 +60,7 @@ public partial class XlsToJson : EditorWindow
                 if (info.Members.ContainsKey(name) == true)
                 {
                     // 同じメンバ名
-                    LogError(MSG_SAMEMEMBER, report.SheetName, GetXLS_RC(r, c), name);
+                    LogError(eMsg.SAMEMEMBER, report.SheetName, GetXLS_RC(r, c), name);
                     return false;
                 }
 
@@ -107,7 +107,7 @@ public partial class XlsToJson : EditorWindow
                 if (info.Members.ContainsKey(name) == true)
                 {
                     // 同じメンバ名
-                    LogError(MSG_SAMEMEMBER, report.SheetName, GetXLS_RC(r, c), name);
+                    LogError(eMsg.SAMEMEMBER, report.SheetName, GetXLS_RC(r, c), name);
                     return false;
                 }
 
@@ -238,7 +238,7 @@ public partial class XlsToJson : EditorWindow
             if (id.R+1 >= grid.GetUpperBound(0)+1)
             {
                 // 最終行で型が取れない
-                LogError(MSG_TYPE_NOTFOUND, report.SheetName, GetXLS_RC(id.R, c), "");
+                LogError(eMsg.TYPE_NOTFOUND, report.SheetName, GetXLS_RC(id.R, c), "");
                 return false;
             }
 
@@ -299,7 +299,7 @@ public partial class XlsToJson : EditorWindow
                 if (isContains == true)
                 {
                     // 配列ではないのに同じメンバ名
-                    LogError(MSG_SAMEMEMBER, report.SheetName, GetXLS_RC(id.R, c), name);
+                    LogError(eMsg.SAMEMEMBER, report.SheetName, GetXLS_RC(id.R, c), name);
                     return false;
                 }
                 else

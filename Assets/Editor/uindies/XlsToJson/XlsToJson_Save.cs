@@ -28,7 +28,7 @@ public partial class XlsToJson : EditorWindow
                 completePreSuffixName(ent);
 
                 string sheetName = ent.SheetName;
-                if (CancelableProgressBar(cnt++, max, ent.TableName) == true)
+                if (CancelableProgressBar(cnt++, max, eMsg.FREE, ent.TableName) == true)
                 {
                     break;
                 }
@@ -36,14 +36,14 @@ public partial class XlsToJson : EditorWindow
 
                 if (accessor.Used == true)
                 {
-                    if (CancelableProgressBar(cnt++, max, ent.AccessorName) == true)
+                    if (CancelableProgressBar(cnt++, max, eMsg.FREE, ent.AccessorName) == true)
                     {
                         break;
                     }
                     saveTableAccess(ent, classDir);
                 }
 
-                if (CancelableProgressBar(cnt++, max, ent.DataName + IMPORT_FILENAME_SUFFIX) == true)
+                if (CancelableProgressBar(cnt++, max, eMsg.FREE, ent.DataName + IMPORT_FILENAME_SUFFIX) == true)
                 {
                     break;
                 }

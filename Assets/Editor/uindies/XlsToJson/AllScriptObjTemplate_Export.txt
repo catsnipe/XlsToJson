@@ -19,7 +19,7 @@ public class AllScriptObj_$$EXCELL_NAME$$_Export
         var excellDirectory = XlsToJson.SearchXlsDirectory(excellFilename);
         var xlsPath = Path.Combine(excellDirectory, excellFilename);
 
-        if (XlsToJson.DialogSelect(XlsToJson.MSG_SCRIPTOBJ_EXPORT_CONFIRM, xlsPath) == false)
+        if (XlsToJson.DialogSelect(XlsToJson.eMsg.SCRIPTOBJ_EXPORT_CONFIRM, xlsPath) == false)
         {
             return;
         }

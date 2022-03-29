@@ -118,38 +118,157 @@ public partial class XlsToJson : EditorWindow
     const string PREFS_PREFIX_DATA          = ".predata";
     const string PREFS_SUFFIX_DATA          = ".sufdata";
 
-    static readonly string CLASS_NAME                = $"{nameof(XlsToJson)}";
-    static readonly string MSG_ROWMAXOVER            = "[{0}] 行数が作成可能最大数を超えています[{1}].\r\n- セルに見えない空白文字が含まれている可能性があります.\r\n- どうしても最大を増やしたい場合は、" + CLASS_NAME + ".ROWS_MAX の値を増やします.";
-    static readonly string MSG_COLMAXOVER            = "[{0}] 列数が作成可能最大数を超えています[{1}].\r\n- セルに見えない空白文字が含まれている可能性があります.\r\n- どうしても最大を増やしたい場合は、" + CLASS_NAME + ".COLS_MAX の値を増やします.";
-    static readonly string MSG_ID_ONLYONE            = "[{0}: {1}] ID は 1 テーブルに 1 つのみです.";
-    static readonly string MSG_ENUMNAME_ONLYONE      = "[{0}: {1}] 同名の ENUM が既に存在します.";
-    static readonly string MSG_ENUMNAME_NOTFOUND     = "[{0}: {1}] ENUM のグループ名がありません.";
-    static readonly string MSG_CONSTNAME_ONLYONE     = "[{0}: {1}] 同名の CONST クラスが既に存在します.";
-    static readonly string MSG_CONSTNAME_NOTFOUND    = "[{0}: {1}] CONST のクラス名がありません.";
-    static readonly string MSG_SAMEMEMBER            = "[{0}: {1}] 既に同じメンバーがあります. '{2}'";
-    static readonly string MSG_TYPE_NOTFOUND         = "[{0}: {1}] タイプがありません. '{2}'";
-    static readonly string MSG_NEED_BLANKROW         = "[{0}: {1}] 各カテゴリ間は最低 {2} 行マージンを取る必要があります.";
-    static readonly string MSG_CLASSTMPL_NOTFOUND    = "{0}({1}) が見つかりません.";
-    static readonly string MSG_DIRECTORY_INVALID     = "ディレクトリは {0} から始まる相対パスを指定してください.";
-    static readonly string MSG_CREATE_ENVIRONMENT    = "環境を作成しました.\r\nTools/XlsToJson メニューで使用可能です.\r\n\r\n作成ファイル:\r\n{0}";
-    static readonly string MSG_USE_SAME_CLASS        = "{0} がベースクラスとして適用されます.";
-    static readonly string MSG_SHEETNAME_CANT_JP     = "{0}: 日本語名のシートは無視します.";
-    static readonly string MSG_NEED_AUTONUMBER_FIELD = "{0}: オートナンバーフィールド ID(int) がありません.";
-    static readonly string MSG_NOT_FOUND_ENUMTBL     = "{0}: enum でエクセルに存在しないクラス名が指定されています.";
-    static readonly string MSG_CREATE_ACCESS         = "*データのシングルトンアクセスを可能にします";
-    static readonly string MSG_BASECLASS_NOTFOUND    = "{0}: ベースクラス [{1}] がありません.";
-    static readonly string MSG_BASECLASS_UNMATCH     = "{0}: ベースクラス [{1}] とテーブルの型が異なります.";
+    static readonly string CLASS_NAME       = $"{nameof(XlsToJson)}";
 
-    static readonly string MSG_CANCEL                = "ユーザーキャンセルされました。";
+    public enum eMsg
+    {
+        FREE,
+        NO_SELECT_EXCEL,
+        NOT_IMPORTABLE_TYPE,
+        ROWMAXOVER,
+        COLMAXOVER,
+        ID_ONLYONE,
+        ENUMNAME_ONLYONE,
+        ENUMNAME_NOTFOUND,
+        CONSTNAME_ONLYONE,
+        CONSTNAME_NOTFOUND,
+        SAMEMEMBER,
+        TYPE_NOTFOUND,
+        NEED_BLANKROW,
+        CLASSTMPL_NOTFOUND,
+        DIRECTORY_INVALID,
+        CREATE_ENVIRONMENT,
+        USE_SAME_CLASS,
+        SHEETNAME_CANT_JP,
+        NEED_AUTONUMBER_FIELD,
+        NOT_FOUND_ENUMTBL,
+        CREATE_ACCESS,
+        BASECLASS_NOTFOUND,
+        BASECLASS_UNMATCH,
+        CANCEL,
+        JSON_EXPORT_CONFIRM,
+        SCRIPTOBJ_EXPORT_CONFIRM,
+        JSON_IMPORT_CONFIRM,
+        SCRIPTOBJ_IMPORT_CONFIRM,
+    }
 
-    public static readonly string MSG_JSON_EXPORT_CONFIRM
-                                                     = "JsonData を [{0}] に書き出します. よろしいですか？";
-    public static readonly string MSG_SCRIPTOBJ_EXPORT_CONFIRM
-                                                     = "ScriptableObject を [{0}] に書き出します. よろしいですか？";
-    public static readonly string MSG_JSON_IMPORT_CONFIRM
-                                                     = "[{0}] から JsonData を作成します. よろしいですか？";
-    public static readonly string MSG_SCRIPTOBJ_IMPORT_CONFIRM
-                                                     = "[{0}] から ScriptableObject を作成します. よろしいですか？";
+    static Dictionary<eMsg, List<string>> Messages = new Dictionary<eMsg, List<string>>()
+    {
+        { eMsg.FREE, new List<string>() {
+            "{0}",
+            "{0}"
+        } },
+        { eMsg.NO_SELECT_EXCEL, new List<string>() {
+            "Excel is not selected.",
+            "エクセルが選択されていません."
+        } },
+        { eMsg.NOT_IMPORTABLE_TYPE, new List<string>() {
+            "Not an importable type. type:{0} member:{1}",
+            "インポートできる型ではありません. type:{0} member:{1}"
+        } },
+        { eMsg.ROWMAXOVER, new List<string>() {
+            "[{0}] Maximum number of rows possible has been exceeded. [{1}]\r\n- Cell may contain invisible whitespace.\r\n- If you need to increase the maximum, change the value of " + CLASS_NAME + ".ROWS_MAX.",
+            "[{0}] 行が可能最大数を超えています. [{1}]\r\n- セルに見えない空白文字が含まれている可能性があります.\r\n- 最大を増やす必要があれば、" + CLASS_NAME + ".ROWS_MAX の値を変更します."
+        } },
+        { eMsg.COLMAXOVER, new List<string>() {
+            "[{0}] Maximum number of columns possible has been exceeded. [{1}]\r\n- Cell may contain invisible whitespace.\r\n- If you need to increase the maximum, change the value of " + CLASS_NAME + ".COLS_MAX.",
+            "[{0}] 列が可能最大数を超えています. [{1}]\r\n- セルに見えない空白文字が含まれている可能性があります.\r\n- 最大を増やす必要があれば、" + CLASS_NAME + ".COLS_MAX の値を変更します."
+        } },
+        { eMsg.ID_ONLYONE, new List<string>() {
+            "[{0}: {1}] Only one 'ID' is defined per table.",
+            "[{0}: {1}] ID は 1 テーブルに 1 つのみ定義します."
+        } },
+        { eMsg.ENUMNAME_ONLYONE, new List<string>() {
+            "[{0}: {1}] An enum with the same name already exists.",
+            "[{0}: {1}] 同名の ENUM が既に存在します."
+        } },
+        { eMsg.ENUMNAME_NOTFOUND, new List<string>() {
+            "[{0}: {1}] Enum group name is missing.",
+            "[{0}: {1}] ENUM のグループ名がありません."
+        } },
+        { eMsg.CONSTNAME_ONLYONE, new List<string>() {
+            "[{0}: {1}] A const class with the same name already exists.",
+            "[{0}: {1}] 同名の CONST クラスが既に存在します."
+        } },
+        { eMsg.CONSTNAME_NOTFOUND, new List<string>() {
+            "[{0}: {1}] Const class name is missing.",
+            "[{0}: {1}] CONST のクラス名がありません."
+        } },
+        { eMsg.SAMEMEMBER, new List<string>() {
+            "[{0}: {1}] Already has the same member. '{2}'",
+            "[{0}: {1}] 既に同じメンバーがあります. '{2}'"
+        } },
+        { eMsg.TYPE_NOTFOUND, new List<string>() {
+            "[{0}: {1}] No type. '{2}'",
+            "[{0}: {1}] タイプがありません. '{2}'"
+        } },
+        { eMsg.NEED_BLANKROW, new List<string>() {
+            "[{0}: {1}] There must be at least {2} line margins between each category.",
+            "[{0}: {1}] 各カテゴリ間は最低 {2} 行マージンを取る必要があります."
+        } },
+        { eMsg.CLASSTMPL_NOTFOUND, new List<string>() {
+            "{0}({1}) not found.",
+            "{0}({1}) が見つかりません."
+        } },
+        { eMsg.DIRECTORY_INVALID, new List<string>() {
+            "Directories must be relative paths starting from {0}.",
+            "ディレクトリは {0} から始まる相対パスを指定してください."
+        } },
+        { eMsg.CREATE_ENVIRONMENT, new List<string>() {
+            "Environment has been created.\r\nIt is available in the 'Tools/XlsToJson' menu.\r\n\r\nCreated file:\r\n{0}",
+            "環境を作成しました.\r\nTools/XlsToJson メニューで使用可能です.\r\n\r\n作成ファイル:\r\n{0}"
+        } },
+        { eMsg.USE_SAME_CLASS, new List<string>() {
+            "{0} is applied as the base class.",
+            "{0} がベースクラスとして適用されます."
+        } },
+        { eMsg.SHEETNAME_CANT_JP, new List<string>() {
+            "{0}: Ignore sheets with Japanese names.",
+            "{0}: 日本語名のシートは無視します."
+        } },
+        { eMsg.NEED_AUTONUMBER_FIELD, new List<string>() {
+            "{0}: Auto number field ID(int) is missing.",
+            "{0}: オートナンバーフィールド ID(int) がありません."
+        } },
+        { eMsg.NOT_FOUND_ENUMTBL, new List<string>() {
+            "{0}: A class that does not exist in Excel is specified in enum.",
+            "{0}: エクセルに存在しないクラスが enum に指定されています."
+        } },
+        { eMsg.CREATE_ACCESS, new List<string>() {
+            "*Enables singleton access to data",
+            "*データのシングルトンアクセスを可能にします"
+        } },
+        { eMsg.BASECLASS_NOTFOUND, new List<string>() {
+            "{0}: Base class '{1}' is missing.",
+            "{0}: ベースクラス '{1}' がありません."
+        } },
+        { eMsg.BASECLASS_UNMATCH, new List<string>() {
+            "{0}: The table type is different from the base class '{1}'.",
+            "{0}: ベースクラス '{1}' とはテーブルの型が違っています."
+        } },
+        { eMsg.CANCEL, new List<string>() {
+            "User canceled.",
+            "ユーザーキャンセルされました."
+        } },
+        { eMsg.JSON_EXPORT_CONFIRM, new List<string>() {
+            "Writes JsonData to '{0}'. Are you sure?",
+            "JsonData を '{0}' に書き出します. よろしいですか？"
+        } },
+        { eMsg.SCRIPTOBJ_EXPORT_CONFIRM, new List<string>() {
+            "Writes ScriptableObject to '{0}'. Are you sure?",
+            "ScriptableObject を '{0}' に書き出します. よろしいですか？"
+        } },
+        { eMsg.JSON_IMPORT_CONFIRM, new List<string>() {
+            "Create JsonData from '{0}'. Are you sure?",
+            "'{0}' から JsonData を作成します. よろしいですか？"
+        } },
+        { eMsg.SCRIPTOBJ_IMPORT_CONFIRM, new List<string>() {
+            "Create ScriptableObject from '{0}'. Are you sure?",
+            "'{0}' から ScriptableObject を作成します. よろしいですか？"
+        } },
+
+
+    };
 
     /// <summary>
     /// ポジションインデックス
@@ -312,7 +431,7 @@ public partial class XlsToJson : EditorWindow
         GUILayout.Space(20);
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label("base class dir:", GUILayout.Width(150));
+        GUILayout.Label("class dir:", GUILayout.Width(150));
         classDir = EditorGUILayout.TextField("", classDir);
         GUILayout.EndHorizontal();
 
@@ -344,7 +463,7 @@ public partial class XlsToJson : EditorWindow
 
         // table class name
         GUILayout.BeginHorizontal();
-        GUILayout.Label("base class name:", GUILayout.Width(150));
+        GUILayout.Label("class name:", GUILayout.Width(150));
         GUI.skin.textField.alignment = TextAnchor.MiddleRight;
         table.Prefix = EditorGUILayout.TextField(table.Prefix, new GUILayoutOption[] { GUILayout.Width(100) });
         GUI.skin.textField.alignment = TextAnchor.MiddleCenter;
@@ -364,7 +483,7 @@ public partial class XlsToJson : EditorWindow
         accessor.Suffix = EditorGUILayout.TextField(accessor.Suffix, new GUILayoutOption[] { GUILayout.Width(100) });
         GUILayout.Space(20);
         accessor.Used = EditorGUILayout.Toggle("", accessor.Used, GUILayout.Width(30));
-        EditorGUILayout.LabelField(MSG_CREATE_ACCESS);
+        EditorGUILayout.LabelField(getMessage(eMsg.CREATE_ACCESS));
         GUILayout.EndHorizontal();
 
         // data class name
@@ -418,7 +537,7 @@ public partial class XlsToJson : EditorWindow
             }
             else
             {
-                entity.Text = string.Format(MSG_USE_SAME_CLASS, entity.ClassName);
+                entity.Text = string.Format(getMessage(eMsg.USE_SAME_CLASS), entity.ClassName);
             }
         }
         GUILayout.EndHorizontal();
@@ -443,7 +562,7 @@ public partial class XlsToJson : EditorWindow
                 {
                     saveSheet(sheetList);
 
-                    Dialog(MSG_CREATE_ENVIRONMENT, getWriteFileList());
+                    Dialog(eMsg.CREATE_ENVIRONMENT, getWriteFileList());
 
                     Close();
                 }
@@ -464,7 +583,7 @@ public partial class XlsToJson : EditorWindow
     {
         if (Selection.objects.Length == 0)
         {
-            LogError("no selecting excell");
+            LogError(eMsg.NO_SELECT_EXCEL);
             return;
         }
         var obj = Selection.objects[0];
@@ -499,7 +618,7 @@ public partial class XlsToJson : EditorWindow
                 // 日本語のシートは無視
                 if (Encoding.GetEncoding("Shift_JIS").GetByteCount(sheet.SheetName) != sheet.SheetName.Length)
                 {
-                    LogWarning(MSG_SHEETNAME_CANT_JP, sheet.SheetName);
+                    LogWarning(eMsg.SHEETNAME_CANT_JP, sheet.SheetName);
                     continue;
                 }
 
@@ -525,7 +644,7 @@ public partial class XlsToJson : EditorWindow
                 }
                 else
                 {
-                    LogWarning(MSG_NEED_AUTONUMBER_FIELD, sheet.SheetName);
+                    LogWarning(eMsg.NEED_AUTONUMBER_FIELD, sheet.SheetName);
                     continue;
                 }
 
@@ -599,12 +718,12 @@ public partial class XlsToJson : EditorWindow
             {
                 if (hashClasses.ContainsKey(ent.ClassName) == false)
                 {
-                    LogError(MSG_BASECLASS_NOTFOUND, ent.SheetName, ent.ClassName);
+                    LogError(eMsg.BASECLASS_NOTFOUND, ent.SheetName, ent.ClassName);
                     return false;
                 }
                 if (hashClasses[ent.ClassName] != ent.Hash)
                 {
-                    LogError(MSG_BASECLASS_UNMATCH, ent.SheetName, ent.ClassName);
+                    LogError(eMsg.BASECLASS_UNMATCH, ent.SheetName, ent.ClassName);
                     return false;
                 }
             }
@@ -678,12 +797,12 @@ public partial class XlsToJson : EditorWindow
         // 予め決めておいたバッファ最大量を超える場合、エラー
         if (rowMax >= ROWS_MAX)
         {
-            LogError(MSG_ROWMAXOVER, name, $"{rowMax} >= {ROWS_MAX}");
+            LogError(eMsg.ROWMAXOVER, name, $"{rowMax} >= {ROWS_MAX}");
             return false;
         }
         if (colMax >= COLS_MAX)
         {
-            LogError(MSG_COLMAXOVER, name, $"{colMax} >= {COLS_MAX}");
+            LogError(eMsg.COLMAXOVER, name, $"{colMax} >= {COLS_MAX}");
             return false;
         }
 
@@ -748,7 +867,7 @@ public partial class XlsToJson : EditorWindow
                 if (posList.ContainsKey(TRIGGER_ID) == true)
                 {
                     // 既に ID がある
-                    LogError(MSG_ID_ONLYONE, name, GetXLS_RC(r, col));
+                    LogError(eMsg.ID_ONLYONE, name, GetXLS_RC(r, col));
                     return false;
                 }
                 posList.Add(TRIGGER_ID, new PosIndex(){ R=r, C=col});
@@ -762,7 +881,7 @@ public partial class XlsToJson : EditorWindow
                 if (posList.ContainsKey(TRIGGER_SUBCLASS) == true)
                 {
                     // 既に ID がある
-                    LogError(MSG_ID_ONLYONE, name, GetXLS_RC(r, col));
+                    LogError(eMsg.ID_ONLYONE, name, GetXLS_RC(r, col));
                     return false;
                 }
                 posList.Add(TRIGGER_SUBCLASS, new PosIndex(){ R=r, C=col});
@@ -776,7 +895,7 @@ public partial class XlsToJson : EditorWindow
                 if (rowDown == null)
                 {
                     // enum 名がない
-                    LogError(MSG_ENUMNAME_NOTFOUND, name, GetXLS_RC(r, col));
+                    LogError(eMsg.ENUMNAME_NOTFOUND, name, GetXLS_RC(r, col));
                     return false;
                 }
                 string ename = rowDown.GetCell(col).ToString();
@@ -784,7 +903,7 @@ public partial class XlsToJson : EditorWindow
                 if (posList.ContainsKey(key) == true)
                 {
                     // 既に同じ enum がある
-                    LogError(MSG_ENUMNAME_ONLYONE, name, GetXLS_RC(r, col));
+                    LogError(eMsg.ENUMNAME_ONLYONE, name, GetXLS_RC(r, col));
                     return false;
                 }
                 posList.Add(key, new PosIndex(){ R=r+1, C=col, Name=ename });
@@ -798,7 +917,7 @@ public partial class XlsToJson : EditorWindow
                 if (rowDown == null)
                 {
                     // enum 名がない
-                    LogError(MSG_ENUMNAME_NOTFOUND, name, GetXLS_RC(r, col));
+                    LogError(eMsg.ENUMNAME_NOTFOUND, name, GetXLS_RC(r, col));
                     return false;
                 }
                 string ename = rowDown.GetCell(col).ToString();
@@ -806,7 +925,7 @@ public partial class XlsToJson : EditorWindow
                 if (posList.ContainsKey(key) == true)
                 {
                     // 既に同じ enum がある
-                    LogError(MSG_ENUMNAME_ONLYONE, name, GetXLS_RC(r, col));
+                    LogError(eMsg.ENUMNAME_ONLYONE, name, GetXLS_RC(r, col));
                     return false;
                 }
                 posList.Add(key, new PosIndex(){ R=r+1, C=col, Name=ename });
@@ -820,7 +939,7 @@ public partial class XlsToJson : EditorWindow
                 if (rowDown == null)
                 {
                     // const 名がない
-                    LogError(MSG_CONSTNAME_NOTFOUND, name, GetXLS_RC(r, col));
+                    LogError(eMsg.CONSTNAME_NOTFOUND, name, GetXLS_RC(r, col));
                     return false;
                 }
                 string ename = rowDown.GetCell(col).ToString();
@@ -828,7 +947,7 @@ public partial class XlsToJson : EditorWindow
                 if (posList.ContainsKey(key) == true)
                 {
                     // 既に同じ const がある
-                    LogError(MSG_CONSTNAME_ONLYONE, name, GetXLS_RC(r, col));
+                    LogError(eMsg.CONSTNAME_ONLYONE, name, GetXLS_RC(r, col));
                     return false;
                 }
                 posList.Add(key, new PosIndex(){ R=r+1, C=col, Name=ename });
@@ -841,7 +960,7 @@ public partial class XlsToJson : EditorWindow
                 if (marginrow_between_category > 0)
                 {
                     // 各カテゴリ間は最低マージン 2 行必要
-                    LogError(MSG_NEED_BLANKROW, name, GetXLS_RC(r, col), MARGINROW_BETWEEN_CTG);
+                    LogError(eMsg.NEED_BLANKROW, name, GetXLS_RC(r, col), MARGINROW_BETWEEN_CTG);
                     return false;
                 }
                 marginrow_between_category = MARGINROW_BETWEEN_CTG;
@@ -940,12 +1059,12 @@ public partial class XlsToJson : EditorWindow
         // パスは Assets/ から始まる相対パス
         if (classDir.IndexOf(ASSETS_HOME) != 0)
         {
-            DialogError(MSG_DIRECTORY_INVALID, ASSETS_HOME);
+            DialogError(eMsg.DIRECTORY_INVALID, ASSETS_HOME);
             return false;
         }
         if (dataDir.IndexOf(ASSETS_HOME) != 0)
         {
-            DialogError(MSG_DIRECTORY_INVALID, ASSETS_HOME);
+            DialogError(eMsg.DIRECTORY_INVALID, ASSETS_HOME);
             return false;
         }
         
@@ -1050,36 +1169,27 @@ public partial class XlsToJson : EditorWindow
     /// <summary>
     /// ログ表示
     /// </summary>
-    public static void Log(string msg, params object[] objs)
+    public static void Log(eMsg emsg, params object[] objs)
     {
-        if (objs != null)
-        {
-            msg = string.Format(msg, objs);
-        }
+        string msg = getMessage(emsg, objs);
         Debug.Log($"{CLASS_NAME}:" + msg);
     }
 
     /// <summary>
     /// 警告表示
     /// </summary>
-    public static void LogWarning(string msg, params object[] objs)
+    public static void LogWarning(eMsg emsg, params object[] objs)
     {
-        if (objs != null)
-        {
-            msg = string.Format(msg, objs);
-        }
+        string msg = getMessage(emsg, objs);
         Debug.LogWarning($"{CLASS_NAME}:" + msg);
     }
 
     /// <summary>
     /// エラー表示
     /// </summary>
-    public static void LogError(string msg, params object[] objs)
+    public static void LogError(eMsg emsg, params object[] objs)
     {
-        if (objs != null)
-        {
-            msg = string.Format(msg, objs);
-        }
+        string msg = getMessage(emsg, objs);
         Debug.LogError($"{CLASS_NAME}:" + msg);
     }
 
@@ -1087,47 +1197,39 @@ public partial class XlsToJson : EditorWindow
     /// <summary>
     /// ダイアログ表示
     /// </summary>
-    public static void Dialog(string msg, params object[] objs)
+    public static void Dialog(eMsg emsg, params object[] objs)
     {
-        if (objs != null)
-        {
-            msg = string.Format(msg, objs);
-        }
+        string msg = getMessage(emsg, objs);
         EditorUtility.DisplayDialog($"{CLASS_NAME}", msg, "ok");
     }
 
     /// <summary>
     /// エラー表示
     /// </summary>
-    public static void DialogError(string msg, params object[] objs)
+    public static void DialogError(eMsg emsg, params object[] objs)
     {
-        if (objs != null)
-        {
-            msg = string.Format(msg, objs);
-        }
+        string msg = getMessage(emsg, objs);
         EditorUtility.DisplayDialog($"{CLASS_NAME}", $"[ERROR]\r\n{msg}", "ok");
     }
 
     /// <summary>
     /// ok/cancel ダイアログ表示
     /// </summary>
-    public static bool DialogSelect(string msg, params object[] objs)
+    public static bool DialogSelect(eMsg emsg, params object[] objs)
     {
-        if (objs != null)
-        {
-            msg = string.Format(msg, objs);
-        }
+        string msg = getMessage(emsg, objs);
         return EditorUtility.DisplayDialog($"{CLASS_NAME}", msg, "ok", "cancel");
     }
 
     /// <summary>
     /// キャンセルつき進捗バー (index+1)/max %
     /// </summary>
-    public static bool CancelableProgressBar(int index, int max, string msg)
+    public static bool CancelableProgressBar(int index, int max, eMsg emsg, params object[] objs)
     {
-        float	perc = (float)(index+1) / (float)max;
-        
-        bool result =
+        string msg = getMessage(emsg, objs);
+
+        float perc = (float)(index+1) / (float)max;
+        bool  result =
             EditorUtility.DisplayCancelableProgressBar(
                 nameof(XlsToJson),
                 perc.ToString("00.0%") + "　" + msg,
@@ -1136,9 +1238,29 @@ public partial class XlsToJson : EditorWindow
         if (result == true)
         {
             EditorUtility.ClearProgressBar();
-            Dialog(MSG_CANCEL);
+            Dialog(eMsg.CANCEL);
             return true;
         }
         return false;
+    }
+
+    static string getMessage(eMsg emsg, params object[] objs)
+    {
+        string msg;
+        
+        // editor 時は Application.systemLanguage で取得できない
+        if (Application.systemLanguage == SystemLanguage.Japanese)
+        {
+            msg = Messages[emsg][1];
+        }
+        else
+        {
+            msg = Messages[emsg][0];
+        }
+        if (objs != null)
+        {
+            msg = string.Format(msg, objs);
+        }
+        return msg;
     }
 }
