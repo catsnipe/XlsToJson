@@ -23,7 +23,7 @@ npoi2.5.1 or later
       * **Editor/XlsToJson/importer/*.cs**  
          These files will link Excel and Json data.  
 
-4. Menu: Tools/XlsToJson/[Create] Json Data.  
+4. Menu: `Tools/XlsToJson/[Create] Json Data`.  
    Json data will be generated in 'Resources/'.  
    
    ![image](https://user-images.githubusercontent.com/85425896/160277279-0873c5eb-272c-41e2-a668-97ba0cb4fb81.png)
