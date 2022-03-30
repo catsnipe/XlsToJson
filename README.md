@@ -23,7 +23,7 @@ npoi2.5.1 or later
       * **Editor/XlsToJson/importer/*.cs**  
          These files will link Excel and Json data.  
 
-4. Menu: Tools/XlsToJson/[Create] Json Data.  
+4. Menu: `Tools/XlsToJson/[Create] Json Data`.  
    Json data will be generated in 'Resources/'.  
    
    ![image](https://user-images.githubusercontent.com/85425896/160277279-0873c5eb-272c-41e2-a668-97ba0cb4fb81.png)
@@ -31,7 +31,8 @@ npoi2.5.1 or later
 5. After editing Json data, Menu: Tools/XlsToJson/[Xlsx Update] Json Data -> SampleData.xlsx  
    Export Json data to Excel.  
 
-see more detail (japanese): https://www.create-forever.games/xls-to-json/
+see more detail : https://www.create-forever.games/xls-to-json-en/  
+see more detail (japanese): https://www.create-forever.games/xls-to-json2/  
 
 ## license
 This sample project includes the work that is distributed in the Apache License 2.0 / MIT / MIT X11.  
