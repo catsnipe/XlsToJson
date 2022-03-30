@@ -8,15 +8,20 @@ public class AllScriptObj_$$EXCELL_NAME$$_Export
     static readonly string excellFilename  = "$$EXCELL_FILENAME$$";
     static readonly string exportDirectory = "$$EXPORT_DIRECTORY$$";
 
-    const string Item = "Tools/XlsToJson/[Xlsx Update] ScriptableObject -> $$EXCELL_FILENAME$$";
+    const string Item = "Tools/XlsToJson/$$EXCELL_FILENAME$$/Update Excel from ScriptableObject";
 
-    [MenuItem (Item, priority = 23)]
+    [MenuItem (Item, priority = $$MENU_PRIORITY$$)]
     static void Open()
     {
         IWorkbook srcbook;
         IWorkbook newbook;
 
         var excellDirectory = XlsToJson.SearchXlsDirectory(excellFilename);
+        if (excellDirectory == null)
+        {
+            XlsToJson.LogError(XlsToJson.eMsg.FILE_NOTFOUND, excellFilename);
+            return;
+        }
         var xlsPath = Path.Combine(excellDirectory, excellFilename);
 
         if (XlsToJson.DialogSelect(XlsToJson.eMsg.SCRIPTOBJ_EXPORT_CONFIRM, xlsPath) == false)

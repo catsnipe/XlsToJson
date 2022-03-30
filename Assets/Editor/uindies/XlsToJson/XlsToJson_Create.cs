@@ -627,15 +627,31 @@ public partial class XlsToJson : EditorWindow
             return (null, null);
         }
 
-        import_text = import_text.Replace(IMPORTTMPL_EXCELL_NAME, Path.GetFileNameWithoutExtension(xlsPath));
-        import_text = import_text.Replace(IMPORTTMPL_EXCELL_FILENAME, Path.GetFileName(xlsPath));
+        string filenameOnly = Path.GetFileNameWithoutExtension(xlsPath);
+        string filename     = Path.GetFileName(xlsPath);
+        
+        int priority = 0;
+        for (int i = 0; i < filename.Length; i++)
+        {
+            priority += filename[i] * 2;
+        }
+
+        if (import_text.IndexOf("ScriptableObject") > 0)
+        {
+            priority += 10000;
+        }
+
+        import_text = import_text.Replace(IMPORTTMPL_EXCELL_NAME, filenameOnly);
+        import_text = import_text.Replace(IMPORTTMPL_EXCELL_FILENAME, filename);
         import_text = import_text.Replace(IMPORTTMPL_EXPORT_DIR, dataDir);
         import_text = import_text.Replace(IMPORTTMPL_IMPORT_EXECLIST, import_execlist);
+        import_text = import_text.Replace(IMPORTTMPL_PRIORITY, priority.ToString());
 
-        export_text = export_text.Replace(IMPORTTMPL_EXCELL_NAME, Path.GetFileNameWithoutExtension(xlsPath));
-        export_text = export_text.Replace(IMPORTTMPL_EXCELL_FILENAME, Path.GetFileName(xlsPath));
+        export_text = export_text.Replace(IMPORTTMPL_EXCELL_NAME, filenameOnly);
+        export_text = export_text.Replace(IMPORTTMPL_EXCELL_FILENAME, filename);
         export_text = export_text.Replace(IMPORTTMPL_EXPORT_DIR, dataDir);
         export_text = export_text.Replace(IMPORTTMPL_EXPORT_EXECLIST, export_execlist);
+        export_text = export_text.Replace(IMPORTTMPL_PRIORITY, (priority+1).ToString());
 
         return (import_text, export_text);
     }

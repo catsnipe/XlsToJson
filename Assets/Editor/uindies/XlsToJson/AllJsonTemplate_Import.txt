@@ -9,18 +9,23 @@ public class AllJson_$$EXCELL_NAME$$_Import
     static readonly string excellFilename  = "$$EXCELL_FILENAME$$";
     static readonly string exportDirectory = "$$EXPORT_DIRECTORY$$";
 
-    const string Item = "Tools/XlsToJson/[Create] JsonData";
+    const string Item = "Tools/XlsToJson/$$EXCELL_FILENAME$$/Create JsonData";
 
-    [MenuItem ("Tools/XlsToJson/[Json]", false, 1)]
+    [MenuItem ("Tools/XlsToJson/$$EXCELL_FILENAME$$/[Json]", false, $$MENU_PRIORITY$$)]
     static void Title() {}
 
-    [MenuItem ("Tools/XlsToJson/[Json]", true)]
+    [MenuItem ("Tools/XlsToJson/$$EXCELL_FILENAME$$/[Json]", true)]
     static bool TitleValidate() { return false; }
 
-    [MenuItem (Item, priority = 2)]
+    [MenuItem (Item, priority = $$MENU_PRIORITY$$)]
     static void Open()
     {
         var excellDirectory = XlsToJson.SearchXlsDirectory(excellFilename);
+        if (excellDirectory == null)
+        {
+            XlsToJson.LogError(XlsToJson.eMsg.FILE_NOTFOUND, excellFilename);
+            return;
+        }
         var xlsPath = Path.Combine(excellDirectory, excellFilename);
 
         //if (XlsToJson.DialogSelect(XlsToJson.MSG_JSON_IMPORT_CONFIRM, xlsPath) == false)

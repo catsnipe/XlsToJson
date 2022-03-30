@@ -83,6 +83,7 @@ public partial class XlsToJson : EditorWindow
     const string IMPORTTMPL_IMPORT_EXECLIST = "$$IMPORT_EXEC_LIST$$";
     const string IMPORTTMPL_EXPORT_ROW      = "$$EXPORT_ROW$$";
     const string IMPORTTMPL_EXPORT_EXECLIST = "$$EXPORT_EXEC_LIST$$";
+    const string IMPORTTMPL_PRIORITY        = "$$MENU_PRIORITY$$";
 
     const string IMPORT_DIRECTORY           = "importer/";
     const string IMPORT_TPL_SCRIPTOBJ       = "ScriptObjTemplate_Import.txt";
@@ -150,6 +151,7 @@ public partial class XlsToJson : EditorWindow
         SCRIPTOBJ_EXPORT_CONFIRM,
         JSON_IMPORT_CONFIRM,
         SCRIPTOBJ_IMPORT_CONFIRM,
+        FILE_NOTFOUND,
     }
 
     static Dictionary<eMsg, List<string>> Messages = new Dictionary<eMsg, List<string>>()
@@ -266,7 +268,11 @@ public partial class XlsToJson : EditorWindow
             "Create ScriptableObject from '{0}'. Are you sure?",
             "'{0}' から ScriptableObject を作成します. よろしいですか？"
         } },
-
+        { eMsg.FILE_NOTFOUND, new List<string>() {
+            "File not found. '{0}'",
+            "ファイルが見つかりません. '{0}'"
+        } },
+        
 
     };
 

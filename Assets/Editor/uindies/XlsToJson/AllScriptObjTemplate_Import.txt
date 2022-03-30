@@ -9,18 +9,23 @@ public class AllScriptObj_$$EXCELL_NAME$$_Import
     static readonly string excellFilename  = "$$EXCELL_FILENAME$$";
     static readonly string exportDirectory = "$$EXPORT_DIRECTORY$$";
 
-    const string Item = "Tools/XlsToJson/[Create] ScriptableObject";
+    const string Item = "Tools/XlsToJson/$$EXCELL_FILENAME$$/Create ScriptableObject";
 
-    [MenuItem ("Tools/XlsToJson/[ScriptableObject]", false, 21)]
+    [MenuItem ("Tools/XlsToJson/$$EXCELL_FILENAME$$/[ScriptableObject]", false, $$MENU_PRIORITY$$)]
     static void Title() {}
 
-    [MenuItem ("Tools/XlsToJson/[ScriptableObject]", true)]
+    [MenuItem ("Tools/XlsToJson/$$EXCELL_FILENAME$$/[ScriptableObject]", true)]
     static bool TitleValidate() { return false; }
 
-    [MenuItem (Item, priority = 22)]
+    [MenuItem (Item, priority = $$MENU_PRIORITY$$)]
     static void Open()
     {
         var excellDirectory = XlsToJson.SearchXlsDirectory(excellFilename);
+        if (excellDirectory == null)
+        {
+            XlsToJson.LogError(XlsToJson.eMsg.FILE_NOTFOUND, excellFilename);
+            return;
+        }
         var xlsPath = Path.Combine(excellDirectory, excellFilename);
 
         //if (XlsToJson.DialogSelect(XlsToJson.MSG_SCRIPTOBJ_IMPORT_CONFIRM, xlsPath) == false)
