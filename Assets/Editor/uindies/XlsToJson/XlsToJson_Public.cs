@@ -95,8 +95,22 @@ public partial class XlsToJson : EditorWindow
         }
         else
         {
-            if (int.TryParse(sval, out val) == false)
+            if (int.TryParse(sval, out val) == true)
             {
+                return true;
+            }
+            if (sval.IndexOf("0x") == 0)
+            {
+                // hex number
+                sval = sval.Replace("0x", "");
+                if (Int32.TryParse(sval, System.Globalization.NumberStyles.HexNumber, null, out val) == true)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                // const value ?
                 object o = getConstValue(sval);
                 if (o == null)
                 {

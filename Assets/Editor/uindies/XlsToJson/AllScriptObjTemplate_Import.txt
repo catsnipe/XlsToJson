@@ -47,8 +47,31 @@ public class AllScriptObj_$$EXCELL_NAME$$_Import
 
             XlsToJson.CompleteDirectory(exportDirectory);
 
+            string name = "";
+
             // table list
+            iXlsToJsonImporter[] classes =
+            {
 $$IMPORT_EXEC_LIST$$
+            };
+
+            foreach (var cls in classes)
+            {
+                cls.Exec(book, exportDirectory);
+                if (cls.CheckSuccess() == true)
+                {
+                    name += $"- {cls.GetExportPath()}\r\n";
+                }
+                else
+                {
+                    name += $"- {cls.GetExportPath()} -> Error!!\r\n";
+                }
+            }
+
+            XlsToJson.Dialog(
+                XlsToJson.eMsg.FREE,
+                $"Imported.\r\n{name}"
+            );
         }
     }
 }

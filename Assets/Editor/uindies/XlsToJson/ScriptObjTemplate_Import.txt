@@ -4,13 +4,25 @@ using NPOI.SS.UserModel;
 using UnityEditor;
 using UnityEngine;
 
-public class ScriptObj_$$SHEET_NAME$$_Import
+public class ScriptObj_$$SHEET_NAME$$_Import : iXlsToJsonImporter
 {
-    static readonly string sheetName  = "$$SHEET_ORG$$";
     static readonly string exportPath = "$$EXPORT_PATH$$";
+    static readonly string sheetName  = "$$SHEET_ORG$$";
+    static bool            success    = false;
 
-    public static void Exec(IWorkbook book, string exportDirectory)
+    public string GetExportPath()
     {
+        return exportPath;
+    }
+
+    public bool CheckSuccess()
+    {
+        return success;
+    }
+
+    public void Exec(IWorkbook book, string exportDirectory)
+    {
+        success = true;
         var exportFilepath = Path.Combine(exportDirectory, exportPath);
 
         var data = ($$TABLE_NAME$$)AssetDatabase.LoadAssetAtPath(exportFilepath, typeof($$TABLE_NAME$$));
@@ -27,6 +39,7 @@ public class ScriptObj_$$SHEET_NAME$$_Import
         if (sheet == null)
         {
             Debug.LogError($"sheet is not found. '{sheetName}'");
+            success = false;
             return;
         }
 
@@ -65,11 +78,12 @@ $$IMPORT_ROW$$
         Debug.Log($"[XlsToJson] create '{exportFilepath}'.");
     }
 
-    static bool import(int r, int c, string cell, bool success)
+    static bool import(int r, int c, string cell, bool _success)
     {
-        if (success == false)
+        if (_success == false)
         {
             Debug.LogError($"[{XlsToJson.GetXLS_RC(r, c)}] '{cell}' import error!");
+            success = false;
             return false;
         }
         return true;

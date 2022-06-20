@@ -56,9 +56,10 @@ public partial class XlsToJson : EditorWindow
                     saveScriptObj(ent, dataDir);
                 }
 
-                so_import_execlist.AppendLine($"            {PREFIX_SCRIPTOBJ}{sheetName}_Import.Exec(book, exportDirectory);");
+                so_import_execlist.AppendLine($"                new {PREFIX_SCRIPTOBJ}{sheetName}_Import(),");
                 so_export_execlist.AppendLine($"        {PREFIX_SCRIPTOBJ}{sheetName}_Export.Exec(srcbook, newbook, exportDirectory);");
-                j_import_execlist.AppendLine($"            {PREFIX_JSON}{sheetName}_Import.Exec(book, exportDirectory);");
+
+                j_import_execlist.AppendLine($"                new {PREFIX_JSON}{sheetName}_Import(),");
                 j_export_execlist.AppendLine($"        {PREFIX_JSON}{sheetName}_Export.Exec(srcbook, newbook, exportDirectory);");
             }
 
