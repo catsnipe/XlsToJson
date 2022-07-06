@@ -155,15 +155,27 @@ public partial class XlsToJson : EditorWindow
     {
         if (string.IsNullOrEmpty(sval) == true)
         {
+            // 空欄
             val = false;
         }
         else
         {
-            if (bool.TryParse(sval, out val) == false)
+            if (bool.TryParse(sval, out val) == true)
             {
-                // bool はなにか入っていたら true
-                val = true;
-                return true;
+                // true or false
+            }
+            else
+            {
+                if (int.TryParse(sval, out int ival) == true)
+                {
+                    // 0..false, 1..true
+                    val = ival == 0 ? false : true;
+                }
+                else
+                {
+                    // なにか入っていたので true
+                    val = true;
+                }
             }
         }
         return true;
