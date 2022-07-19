@@ -308,6 +308,16 @@ public partial class XlsToJson : EditorWindow
         }
 
         var sb_index_find = new StringBuilder();
+        var tableNames    = new Dictionary<string, string>();
+
+        foreach (var entity in sheetList)
+        {
+            if (tableNames.ContainsKey(entity.ClassName) == false)
+            {
+                tableNames.Add(entity.ClassName, entity.TableName);
+            }
+        }
+
         foreach (var pair in classes)
         {
             foreach (var member in pair.Value.Members)
@@ -319,11 +329,15 @@ public partial class XlsToJson : EditorWindow
                 {
                     if (type.IndexOf('.') >= 0)
                     {
-                        //
-                    }
-                    else
-                    {
-                        type = $"{tablename}.{type}";
+                        string classname = type.Substring(0, type.IndexOf('.'));
+                        if (tableNames.ContainsKey(classname) == false)
+                        {
+                            Log(eMsg.NOT_FOUND_ENUMTBL, report.SheetName);
+                        }
+                        else
+                        {
+                            type = type.Replace(classname, tableNames[classname]);
+                        }
                     }
                 }
 
