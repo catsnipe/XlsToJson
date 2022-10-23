@@ -898,7 +898,7 @@ public partial class XlsToJson : EditorWindow
             // enum グループ
             if (cellstr == TRIGGER_ENUM)
             {
-                if (rowDown == null)
+                if (rowDown == null || rowDown.GetCell(col) == null)
                 {
                     // enum 名がない
                     LogError(eMsg.ENUMNAME_NOTFOUND, name, GetXLS_RC(r, col));
@@ -920,7 +920,7 @@ public partial class XlsToJson : EditorWindow
             // global enum グループ
             if (cellstr.ToLower() == TRIGGER_GLOBAL_ENUM.ToLower())
             {
-                if (rowDown == null)
+                if (rowDown == null || rowDown.GetCell(col) == null)
                 {
                     // enum 名がない
                     LogError(eMsg.ENUMNAME_NOTFOUND, name, GetXLS_RC(r, col));
@@ -942,7 +942,7 @@ public partial class XlsToJson : EditorWindow
             // const グループ
             if (cellstr == TRIGGER_CONST)
             {
-                if (rowDown == null)
+                if (rowDown == null || rowDown.GetCell(col) == null)
                 {
                     // const 名がない
                     LogError(eMsg.CONSTNAME_NOTFOUND, name, GetXLS_RC(r, col));
