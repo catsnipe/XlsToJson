@@ -5,8 +5,11 @@ using UnityEngine;
 /// <summary>
 /// XlsToJsonTemplate_Access: ScriptableObject singleton accessor
 /// </summary>
-public partial class XlsToJsonTemplate_Access
+public partial class XlsToJsonTemplate_Access : MonoBehaviour
 {
+    [SerializeField]
+    XlsToJsonTemplate_Class        Table;
+
     /// <summary>
     /// データカウント
     /// </summary>
@@ -29,6 +32,14 @@ public partial class XlsToJsonTemplate_Access
     }
 
     static XlsToJsonTemplate_Class table;
+
+    /// <summary>
+    /// awake
+    /// </summary>
+    void Awake()
+    {
+        table = Table;
+    }
 
     /// <summary>
     /// テーブルを設定
