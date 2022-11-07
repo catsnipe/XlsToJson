@@ -5,8 +5,11 @@ using UnityEngine;
 /// <summary>
 /// Character: ScriptableObject singleton accessor
 /// </summary>
-public partial class Character
+public partial class Character : MonoBehaviour
 {
+    [SerializeField]
+    Class_Character        Table;
+
     /// <summary>
     /// データカウント
     /// </summary>
@@ -29,6 +32,14 @@ public partial class Character
     }
 
     static Class_Character table;
+
+    /// <summary>
+    /// awake
+    /// </summary>
+    void Awake()
+    {
+        table = Table;
+    }
 
     /// <summary>
     /// テーブルを設定
