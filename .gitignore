@@ -11,3 +11,5 @@
 ~*.xlsx.meta
 /Assets/Resources
 /Assets/Editor/uindies/XlsToJson/importer
+/Assets/Editor/uindies/XlsToJson/importer.meta
+/Assets/Resources.meta
