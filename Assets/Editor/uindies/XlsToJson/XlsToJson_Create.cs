@@ -238,46 +238,48 @@ public partial class XlsToJson : EditorWindow
         int start;
         int end;
 
-        // 最初からある Row を消す
-        start = text.IndexOf(CLASSTMPL_CLASS_SIGN) + CLASSTMPL_CLASS_SIGN.Length + "\r\n".Length;
-        end   = text.IndexOf(CLASSTMPL_CLASS_ENDSIGN);
-        text = text.Remove(start, end - start);
+        text = text.Replace("\r\n", "\n");
 
-        text = text.Replace(CLASSTMPL_GENUM_ENDSIGN + "\r\n", sb_global_enum.ToString());
-        text = text.Replace(CLASSTMPL_ENUM_ENDSIGN + "\r\n", sb_enum.ToString());
-        text = text.Replace(CLASSTMPL_CONST_ENDSIGN + "\r\n", sb_const.ToString());
-        text = text.Replace(CLASSTMPL_CLASS_ENDSIGN + "\r\n", sb_class.ToString());
-        text = text.Replace(CTMPL_INDEX_ENDSIGN + "\r\n", sb_index.ToString());
-        text = text.Replace(CTMPL_INDEX_NULL_ENDSIGN + "\r\n", sb_index_null.ToString());
-        text = text.Replace(CTMPL_INDEX_FIND_ENDSIGN + "\r\n", sb_index_find.ToString());
-        text = text.Replace(CLASSTMPL_GENUM_SIGN + "\r\n", "");
-        text = text.Replace(CLASSTMPL_ENUM_SIGN + "\r\n", "");
-        text = text.Replace(CLASSTMPL_CONST_SIGN + "\r\n", "");
-        text = text.Replace(CLASSTMPL_CLASS_SIGN + "\r\n", "");
-        text = text.Replace(CTMPL_INDEX_SIGN + "\r\n", "");
-        text = text.Replace(CTMPL_INDEX_NULL_SIGN + "\r\n", "");
-        text = text.Replace(CTMPL_INDEX_FIND_SIGN + "\r\n", "");
+        // 最初からある Row を消す
+        start = text.IndexOf(CLASSTMPL_CLASS_SIGN) + CLASSTMPL_CLASS_SIGN.Length + "\n".Length;
+        end   = text.IndexOf(CLASSTMPL_CLASS_ENDSIGN);
+        text  = text.Remove(start, end - start);
+
+        text  = text.Replace(CLASSTMPL_GENUM_ENDSIGN + "\n", sb_global_enum.ToString());
+        text  = text.Replace(CLASSTMPL_ENUM_ENDSIGN + "\n", sb_enum.ToString());
+        text  = text.Replace(CLASSTMPL_CONST_ENDSIGN + "\n", sb_const.ToString());
+        text  = text.Replace(CLASSTMPL_CLASS_ENDSIGN + "\n", sb_class.ToString());
+        text  = text.Replace(CTMPL_INDEX_ENDSIGN + "\n", sb_index.ToString());
+        text  = text.Replace(CTMPL_INDEX_NULL_ENDSIGN + "\n", sb_index_null.ToString());
+        text  = text.Replace(CTMPL_INDEX_FIND_ENDSIGN + "\n", sb_index_find.ToString());
+        text  = text.Replace(CLASSTMPL_GENUM_SIGN + "\n", "");
+        text  = text.Replace(CLASSTMPL_ENUM_SIGN + "\n", "");
+        text  = text.Replace(CLASSTMPL_CONST_SIGN + "\n", "");
+        text  = text.Replace(CLASSTMPL_CLASS_SIGN + "\n", "");
+        text  = text.Replace(CTMPL_INDEX_SIGN + "\n", "");
+        text  = text.Replace(CTMPL_INDEX_NULL_SIGN + "\n", "");
+        text  = text.Replace(CTMPL_INDEX_FIND_SIGN + "\n", "");
         if (report.Classes.Count == 0 && sb_enum.Length == 0 && sb_const.Length == 0)
         {
             // テーブルがない場合、余計なコードを一切消す
-            start = text.IndexOf(CLASSTMPL_TABLE_SIGN) + CLASSTMPL_TABLE_SIGN.Length + "\r\n".Length;
+            start = text.IndexOf(CLASSTMPL_TABLE_SIGN) + CLASSTMPL_TABLE_SIGN.Length + "\n".Length;
             end   = text.IndexOf(CLASSTMPL_TABLE_ENDSIGN);
-            text = text.Remove(start, end - start);
+            text  = text.Remove(start, end - start);
         }
         else
         if (report.Classes.Count == 0)
         {
             // Row がない場合、余計なコードを一切消す
-            start = text.IndexOf(CLASSTMPL_CODE_SIGN) + CLASSTMPL_CODE_SIGN.Length + "\r\n".Length;
+            start = text.IndexOf(CLASSTMPL_CODE_SIGN) + CLASSTMPL_CODE_SIGN.Length + "\n".Length;
             end   = text.IndexOf(CLASSTMPL_CODE_ENDSIGN);
-            text = text.Remove(start, end - start);
+            text  = text.Remove(start, end - start);
         }
-        text = text.Replace(CLASSTMPL_TABLE_SIGN + "\r\n", "");
-        text = text.Replace(CLASSTMPL_TABLE_ENDSIGN + "\r\n", "");
-        text = text.Replace(CLASSTMPL_CODE_SIGN + "\r\n", "");
-        text = text.Replace(CLASSTMPL_CODE_ENDSIGN + "\r\n", "");
-        text = text.Replace("\t", "    ");
-        text = text.Replace(nameof(XlsToJsonTemplate_Class), tablename);
+        text  = text.Replace(CLASSTMPL_TABLE_SIGN + "\n", "");
+        text  = text.Replace(CLASSTMPL_TABLE_ENDSIGN + "\n", "");
+        text  = text.Replace(CLASSTMPL_CODE_SIGN + "\n", "");
+        text  = text.Replace(CLASSTMPL_CODE_ENDSIGN + "\n", "");
+        text  = text.Replace("\t", "    ");
+        text  = text.Replace(nameof(XlsToJsonTemplate_Class), tablename);
 
         return text;
     }
@@ -357,10 +359,11 @@ public partial class XlsToJson : EditorWindow
             }
         }
 
+        text = text.Replace("\r\n", "\n");
         text = text.Replace(nameof(XlsToJsonTemplate_Class), tablename);
         text = text.Replace(nameof(XlsToJsonTemplate_Access), accessorname);
-        text = text.Replace(CTMPL_INDEX_FIND_ENDSIGN + "\r\n", sb_index_find.ToString());
-        text = text.Replace(CTMPL_INDEX_FIND_SIGN + "\r\n", "");
+        text = text.Replace(CTMPL_INDEX_FIND_ENDSIGN + "\n", sb_index_find.ToString());
+        text = text.Replace(CTMPL_INDEX_FIND_SIGN + "\n", "");
         text = text.Replace("\t", "    ");
 
         return text;
