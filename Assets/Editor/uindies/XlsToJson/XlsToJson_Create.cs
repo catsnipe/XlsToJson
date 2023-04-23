@@ -352,7 +352,7 @@ public partial class XlsToJson : EditorWindow
                     sb_index_find.AppendLine( "\t/// </summary>");
                     sb_index_find.AppendLine($"\tpublic static {tablename}.Row FindRowBy{member.Key}({type} val, bool errorLog = true)");
                     sb_index_find.AppendLine( "\t{");
-                    sb_index_find.AppendLine($"\t\treturn table.FindRowBy{member.Key}(val, errorLog);");
+                    sb_index_find.AppendLine($"\t\treturn table?.FindRowBy{member.Key}(val, errorLog);");
                     sb_index_find.AppendLine( "\t}");
                     sb_index_find.AppendLine( "");
                 }

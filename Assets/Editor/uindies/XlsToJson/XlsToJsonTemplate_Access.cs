@@ -73,7 +73,7 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour
     /// <param name="index">配列番号</param>
     public static XlsToJsonTemplate_Class.Row GetRow(int index)
     {
-        return table.GetRow(index);
+        return table?.GetRow(index);
     }
 
 //$$REGION INDEX_FIND$$
