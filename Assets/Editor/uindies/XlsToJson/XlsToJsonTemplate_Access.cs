@@ -60,6 +60,14 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour
     }
 
     /// <summary>
+    /// テーブルを取得
+    /// </summary>
+    public static XlsToJsonTemplate_Class GetTable()
+    {
+        return table;
+    }
+
+    /// <summary>
     /// 行を配列順で取得する
     /// </summary>
     /// <param name="index">配列番号</param>
