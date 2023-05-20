@@ -18,11 +18,14 @@ public partial class XlsToJson : EditorWindow
     {
         try
         {
+            string dllFilename;
+
 #if UNITY_EDITOR_WIN
-            asm = Assembly.LoadFile("Library\\ScriptAssemblies\\Assembly-CSharp.dll");
+            dllFilename = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Library\\ScriptAssemblies\\Assembly-CSharp.dll");
 #else
-            asm = Assembly.LoadFile("Library/ScriptAssemblies/Assembly-CSharp.dll");
+            dllFilename = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Library\\ScriptAssemblies\\Assembly-CSharp.dll").Replace("\\", "/");
 #endif
+            asm = Assembly.LoadFile(dllFilename);
         }
         catch (Exception ex)
         {
