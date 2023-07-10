@@ -60,6 +60,14 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour
     }
 
     /// <summary>
+    /// 変更したテーブル内容を破棄
+    /// </summary>
+    public static void RejectChanges()
+    {
+        Resources.UnloadAsset(table);
+    }
+
+    /// <summary>
     /// テーブルを取得
     /// </summary>
     public static XlsToJsonTemplate_Class GetTable()
