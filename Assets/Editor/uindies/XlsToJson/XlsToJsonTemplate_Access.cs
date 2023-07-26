@@ -1,6 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using System.Linq;
+using UnityEditor;
+#endif
 
 /// <summary>
 /// XlsToJsonTemplate_Access: ScriptableObject singleton accessor
@@ -32,6 +36,9 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour
     }
 
     static XlsToJsonTemplate_Class table;
+#if UNITY_EDITOR
+    static int lastId;
+#endif
 
     /// <summary>
     /// awake
@@ -39,6 +46,9 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour
     void Awake()
     {
         table = Table;
+#if UNITY_EDITOR
+        setLastId();
+#endif
     }
 
     /// <summary>
@@ -57,14 +67,9 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour
             // Scriptable Object
             table = obj as XlsToJsonTemplate_Class;
         }
-    }
-
-    /// <summary>
-    /// 変更したテーブル内容を破棄
-    /// </summary>
-    public static void RejectChanges()
-    {
-        Resources.UnloadAsset(table);
+#if UNITY_EDITOR
+        setLastId();
+#endif
     }
 
     /// <summary>
@@ -83,6 +88,44 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour
     {
         return table?.GetRow(index);
     }
+
+#if UNITY_EDITOR
+    /// <summary>
+    /// 新規行を追加. ID 自動生成
+    /// </summary>
+    public static void Add(XlsToJsonTemplate_Class.Row row)
+    {
+        lastId = lastId + 1;
+        row.ID = lastId;
+        
+        table.Rows.Add(row);
+
+        EditorUtility.SetDirty(table);
+        AssetDatabase.SaveAssets();
+    }
+
+    /// <summary>
+    /// 行を更新
+    /// </summary>
+    public static void Update(XlsToJsonTemplate_Class.Row row)
+    {
+        EditorUtility.SetDirty(table);
+        AssetDatabase.SaveAssets();
+    }
+
+    /// <summary>
+    /// 変更したテーブル内容を破棄
+    /// </summary>
+    public static void RejectChanges()
+    {
+        Resources.UnloadAsset(table);
+    }
+    
+    static void setLastId()
+    {
+        lastId = table.Rows.Max(r => r.ID);
+    }
+#endif
 
 //$$REGION INDEX_FIND$$
 //$$REGION END_INDEX_FIND$$
