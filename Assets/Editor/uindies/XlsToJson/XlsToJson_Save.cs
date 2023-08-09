@@ -47,14 +47,9 @@ public partial class XlsToJson : EditorWindow
                 {
                     break;
                 }
-                if (importerJson == true)
-                {
-                    saveJson(ent, dataDir);
-                }
-                if (importerScriptObj == true)
-                {
-                    saveScriptObj(ent, dataDir);
-                }
+
+                saveJson(ent, dataDir, importerJson);
+                saveScriptObj(ent, dataDir, importerScriptObj);
 
                 so_import_execlist.AppendLine($"                new {PREFIX_SCRIPTOBJ}{sheetName}_Import(),");
                 so_export_execlist.AppendLine($"        {PREFIX_SCRIPTOBJ}{sheetName}_Export.Exec(srcbook, newbook, exportDirectory);");
@@ -63,14 +58,8 @@ public partial class XlsToJson : EditorWindow
                 j_export_execlist.AppendLine($"        {PREFIX_JSON}{sheetName}_Export.Exec(srcbook, newbook, exportDirectory);");
             }
 
-            if (importerJson == true)
-            {
-                saveAllJson(j_import_execlist.ToString(), j_export_execlist.ToString());
-            }
-            if (importerScriptObj == true)
-            {
-                saveAllScriptObj(so_import_execlist.ToString(), so_export_execlist.ToString());
-            }
+            saveAllJson(j_import_execlist.ToString(), j_export_execlist.ToString(), importerJson);
+            saveAllScriptObj(so_import_execlist.ToString(), so_export_execlist.ToString(), importerScriptObj);
         }
         finally
         {
@@ -132,21 +121,12 @@ public partial class XlsToJson : EditorWindow
     /// <summary>
     /// ScriptableObject を自動生成する Editor クラスを生成し、保存
     /// </summary>
-    static bool saveScriptObj(SheetEntity report, string datadir)
+    static bool saveScriptObj(SheetEntity report, string datadir, bool createOrNot)
     {
         // テーブルがない
         if (report.Classes.Count == 0)
         {
             return true;
-        }
-
-        var    text       = createScriptObj(report, datadir);
-        string importText = text.importText;
-        string exportText = text.exportText;
-
-        if (importText == null || exportText == null)
-        {
-            return false;
         }
 
         string workdir   = pathCombine(searchXlsToJsonDirectory(), IMPORT_DIRECTORY);
@@ -157,34 +137,55 @@ public partial class XlsToJson : EditorWindow
         {
             CompleteDirectory(workdir);
 
-            fileWrite(importout, importText);
-            fileWrite(exportout, exportText);
+            if (File.Exists(importout) == true) AssetDatabase.DeleteAsset(importout);
+            if (File.Exists(exportout) == true) AssetDatabase.DeleteAsset(exportout);
+
+            if (createOrNot == true)
+            {
+                var    text       = createScriptObj(report, datadir);
+                string importText = text.importText;
+                string exportText = text.exportText;
+
+                if (importText == null || exportText == null)
+                {
+                    return false;
+                }
+
+                fileWrite(importout, importText);
+                fileWrite(exportout, exportText);
+            }
         }
         return true;
     }
 
-    static bool saveAllScriptObj(string import_execlist, string export_execlist)
+    static bool saveAllScriptObj(string import_execlist, string export_execlist, bool createOrNot)
     {
         var    xlsName   = Path.GetFileNameWithoutExtension(xlsPath);
         string workdir   = pathCombine(searchXlsToJsonDirectory(), IMPORT_DIRECTORY);
         string importout = pathCombine(workdir, $"{PREFIXSIGN_ALL}{PREFIX_SCRIPTOBJ}{xlsName}{IMPORT_FILENAME_SUFFIX}.cs");
         string exportout = pathCombine(workdir, $"{PREFIXSIGN_ALL}{PREFIX_SCRIPTOBJ}{xlsName}{EXPORT_FILENAME_SUFFIX}.cs");
 
-        var    text       = createAllScriptObj(import_execlist, export_execlist);
-        string importText = text.importText;
-        string exportText = text.exportText;
-
-        if (importText == null || exportText == null)
-        {
-            return false;
-        }
-
         if (workdir != null)
         {
             CompleteDirectory(workdir);
 
-            fileWrite(importout, importText);
-            fileWrite(exportout, exportText);
+            if (File.Exists(importout) == true) AssetDatabase.DeleteAsset(importout);
+            if (File.Exists(exportout) == true) AssetDatabase.DeleteAsset(exportout);
+
+            if (createOrNot == true)
+            {
+                var    text       = createAllScriptObj(import_execlist, export_execlist);
+                string importText = text.importText;
+                string exportText = text.exportText;
+
+                if (importText == null || exportText == null)
+                {
+                    return false;
+                }
+
+                fileWrite(importout, importText);
+                fileWrite(exportout, exportText);
+            }
         }
         return true;
     }
@@ -192,21 +193,12 @@ public partial class XlsToJson : EditorWindow
     /// <summary>
     /// Json を自動生成する Editor クラスを生成し、保存
     /// </summary>
-    static bool saveJson(SheetEntity report, string datadir)
+    static bool saveJson(SheetEntity report, string datadir, bool createOrNot)
     {
         // テーブルがない
         if (report.Classes.Count == 0)
         {
             return true;
-        }
-
-        var    text       = createJson(report, datadir);
-        string importText = text.importText;
-        string exportText = text.exportText;
-
-        if (importText == null || exportText == null)
-        {
-            return false;
         }
 
         string workdir   = pathCombine(searchXlsToJsonDirectory(), IMPORT_DIRECTORY);
@@ -217,34 +209,55 @@ public partial class XlsToJson : EditorWindow
         {
             CompleteDirectory(workdir);
 
-            fileWrite(importout, importText);
-            fileWrite(exportout, exportText);
+            if (File.Exists(importout) == true) AssetDatabase.DeleteAsset(importout);
+            if (File.Exists(exportout) == true) AssetDatabase.DeleteAsset(exportout);
+
+            if (createOrNot == true)
+            {
+                var    text       = createJson(report, datadir);
+                string importText = text.importText;
+                string exportText = text.exportText;
+
+                if (importText == null || exportText == null)
+                {
+                    return false;
+                }
+
+                fileWrite(importout, importText);
+                fileWrite(exportout, exportText);
+            }
         }
         return true;
     }
 
-    static bool saveAllJson(string import_execlist, string export_execlist)
+    static bool saveAllJson(string import_execlist, string export_execlist, bool createOrNot)
     {
         var    xlsName   = Path.GetFileNameWithoutExtension(xlsPath);
         string workdir   = pathCombine(searchXlsToJsonDirectory(), IMPORT_DIRECTORY);
         string importout = pathCombine(workdir, $"{PREFIXSIGN_ALL}{PREFIX_JSON}{xlsName}{IMPORT_FILENAME_SUFFIX}.cs");
         string exportout = pathCombine(workdir, $"{PREFIXSIGN_ALL}{PREFIX_JSON}{xlsName}{EXPORT_FILENAME_SUFFIX}.cs");
 
-        var    text       = createAllJson(import_execlist, export_execlist);
-        string importText = text.importText;
-        string exportText = text.exportText;
-
-        if (importText == null || exportText == null)
-        {
-            return false;
-        }
-
         if (workdir != null)
         {
             CompleteDirectory(workdir);
 
-            fileWrite(importout, importText);
-            fileWrite(exportout, exportText);
+            if (File.Exists(importout) == true) AssetDatabase.DeleteAsset(importout);
+            if (File.Exists(exportout) == true) AssetDatabase.DeleteAsset(exportout);
+
+            if (createOrNot == true)
+            {
+                var    text       = createAllJson(import_execlist, export_execlist);
+                string importText = text.importText;
+                string exportText = text.exportText;
+
+                if (importText == null || exportText == null)
+                {
+                    return false;
+                }
+
+                fileWrite(importout, importText);
+                fileWrite(exportout, exportText);
+            }
         }
         return true;
     }
