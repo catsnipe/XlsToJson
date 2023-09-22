@@ -74,6 +74,7 @@ $$IMPORT_ROW$$
         // save scriptable object
         ScriptableObject obj = AssetDatabase.LoadAssetAtPath(exportFilepath, typeof(ScriptableObject)) as ScriptableObject;
         EditorUtility.SetDirty(obj);
+        AssetDatabase.SaveAssetIfDirty(obj);
 
         Debug.Log($"[XlsToJson] create '{exportFilepath}'.");
     }

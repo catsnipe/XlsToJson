@@ -18,14 +18,14 @@ public partial class XlsToJson : EditorWindow
     {
         try
         {
-            string dllFilename;
-
+            string path = Path.GetDirectoryName(Application.dataPath);
 #if UNITY_EDITOR_WIN
-            dllFilename = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Library\\ScriptAssemblies\\Assembly-CSharp.dll");
+            path = Path.Combine(path, "Library\\ScriptAssemblies\\Assembly-CSharp.dll");
+            asm = Assembly.LoadFile(path);
 #else
-            dllFilename = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Library\\ScriptAssemblies\\Assembly-CSharp.dll").Replace("\\", "/");
+            path = Path.Combine(path, "Library/ScriptAssemblies/Assembly-CSharp.dll");
+            asm = Assembly.LoadFile(path);
 #endif
-            asm = Assembly.LoadFile(dllFilename);
         }
         catch (Exception ex)
         {
@@ -49,10 +49,9 @@ public partial class XlsToJson : EditorWindow
         }
 
         string[,] grid = new string[rowMax, colMax];
-        int       marginrow_between_category = 0;
         for (int r = 0; r <= sheet.LastRowNum; r++)
         {
-            if (getCells(sheet, grid, posList, r, ref marginrow_between_category) == false)
+            if (getCells(sheet, grid, posList, r) == false)
             {
                 return null;
             }

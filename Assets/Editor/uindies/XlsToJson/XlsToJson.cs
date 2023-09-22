@@ -436,17 +436,19 @@ public partial class XlsToJson : EditorWindow
 
         GUILayout.Space(20);
 
+        GUILayout.Label("[Output Directory]", EditorStyles.boldLabel);
         GUILayout.BeginHorizontal();
-        GUILayout.Label("class dir:", GUILayout.Width(150));
+        GUILayout.Label("class", GUILayout.Width(150));
         classDir = EditorGUILayout.TextField("", classDir);
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label("output dir:", GUILayout.Width(150));
+        GUILayout.Label("data asset", GUILayout.Width(150));
         dataDir = EditorGUILayout.TextField("", dataDir);
         GUILayout.EndHorizontal();
         GUILayout.Space(20);
 
+        GUILayout.Label("[Importer]", EditorStyles.boldLabel);
         GUILayout.BeginHorizontal();
         GUILayout.Label("json", GUILayout.Width(150));
         importerJson = EditorGUILayout.Toggle("", importerJson, GUILayout.Width(30));
@@ -457,6 +459,7 @@ public partial class XlsToJson : EditorWindow
         GUILayout.EndHorizontal();
         GUILayout.Space(20);
 
+        GUILayout.Label("[Naming Rules]", EditorStyles.boldLabel);
         SheetEntity entity = sheetList[sheetNo];
 
         GUILayout.BeginHorizontal();
@@ -469,7 +472,7 @@ public partial class XlsToJson : EditorWindow
 
         // table class name
         GUILayout.BeginHorizontal();
-        GUILayout.Label("class name:", GUILayout.Width(150));
+        GUILayout.Label("table class name", GUILayout.Width(150));
         GUI.skin.textField.alignment = TextAnchor.MiddleRight;
         table.Prefix = EditorGUILayout.TextField(table.Prefix, new GUILayoutOption[] { GUILayout.Width(100) });
         GUI.skin.textField.alignment = TextAnchor.MiddleCenter;
@@ -480,7 +483,7 @@ public partial class XlsToJson : EditorWindow
 
         // accessor class name
         GUILayout.BeginHorizontal();
-        GUILayout.Label("accessor class name:", GUILayout.Width(150));
+        GUILayout.Label("accessor class name", GUILayout.Width(150));
         GUI.skin.textField.alignment = TextAnchor.MiddleRight;
         accessor.Prefix = EditorGUILayout.TextField(accessor.Prefix, new GUILayoutOption[] { GUILayout.Width(100) });
         GUI.skin.textField.alignment = TextAnchor.LowerLeft;
@@ -494,7 +497,7 @@ public partial class XlsToJson : EditorWindow
 
         // data class name
         GUILayout.BeginHorizontal();
-        GUILayout.Label("output name:", GUILayout.Width(150));
+        GUILayout.Label("asset name", GUILayout.Width(150));
         GUI.skin.textField.alignment = TextAnchor.MiddleRight;
         data.Prefix = EditorGUILayout.TextField(data.Prefix, new GUILayoutOption[] { GUILayout.Width(100) });
         GUI.skin.textField.alignment = TextAnchor.LowerLeft;
@@ -512,12 +515,21 @@ public partial class XlsToJson : EditorWindow
 
         bool change = false;
 
+        GUILayout.Label("[Class View]", EditorStyles.boldLabel);
         GUILayout.BeginHorizontal();
         sheetNo = EditorGUILayout.Popup(sheetNo, names.ToArray(), GUILayout.Width(150));
 
-        if (GUILayout.Button("refresh", GUILayout.MaxWidth(150)))
+        if (GUILayout.Button("CREATE Sheet", GUILayout.MaxWidth(150)))
         {
-            change = true;
+            completePreSuffixNameAll();
+            if (checkSaveDirectory() == true)
+            {
+                saveSheet(new List<SheetEntity>() { entity }, sheetList);
+
+                Dialog(eMsg.CREATE_ENVIRONMENT, getWriteFileList());
+
+                Close();
+            }
         }
         if (preSheetNo != sheetNo)
         {
@@ -561,12 +573,12 @@ public partial class XlsToJson : EditorWindow
 
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("CREATE Importer"))
+            if (GUILayout.Button("CREATE All"))
             {
                 completePreSuffixNameAll();
                 if (checkSaveDirectory() == true)
                 {
-                    saveSheet(sheetList);
+                    saveSheet(sheetList, sheetList);
 
                     Dialog(eMsg.CREATE_ENVIRONMENT, getWriteFileList());
 
@@ -822,19 +834,14 @@ public partial class XlsToJson : EditorWindow
     /// <param name="grid">グリッド情報</param>
     /// <param name="posList">ID, [CLASS], enum のデータポジションを示すリスト</param>
     /// <param name="r">行数</param>
-    /// <param name="marginrow_between_category">カテゴリ先頭までに、この値が 0 である必要がある</param>
     /// <returns>false..取得失敗</returns>
-    static bool getCells(ISheet sheet, string[,] grid, Dictionary<string, PosIndex> posList, int r, ref int marginrow_between_category)
+    static bool getCells(ISheet sheet, string[,] grid, Dictionary<string, PosIndex> posList, int r)
     {
         string name  = sheet.SheetName;
 
         IRow   row   = sheet.GetRow(r);
         if (checkRowIsNullOrEmpty(row) == true)
         {
-            if (--marginrow_between_category < 0)
-            {
-                marginrow_between_category = 0;
-            }
             return true;
         }
 
@@ -848,7 +855,6 @@ public partial class XlsToJson : EditorWindow
         {
             ICell    cell     = row.Cells[c];
             string   cellstr  = cell.ToString();
-            bool     category = false;
             CellType celltype = cell.CellType == CellType.Formula ? cell.CachedFormulaResultType : cell.CellType;
 
             switch (celltype)
@@ -877,8 +883,6 @@ public partial class XlsToJson : EditorWindow
                     return false;
                 }
                 posList.Add(TRIGGER_ID, new PosIndex(){ R=r, C=col});
-
-                category = true;
             }
             else
             // テーブルのサブクラスコメント
@@ -891,8 +895,6 @@ public partial class XlsToJson : EditorWindow
                     return false;
                 }
                 posList.Add(TRIGGER_SUBCLASS, new PosIndex(){ R=r, C=col});
-
-                category = true;
             }
             else
             // enum グループ
@@ -913,8 +915,6 @@ public partial class XlsToJson : EditorWindow
                     return false;
                 }
                 posList.Add(key, new PosIndex(){ R=r+1, C=col, Name=ename });
-
-                category = true;
             }
             else
             // global enum グループ
@@ -935,8 +935,6 @@ public partial class XlsToJson : EditorWindow
                     return false;
                 }
                 posList.Add(key, new PosIndex(){ R=r+1, C=col, Name=ename });
-
-                category = true;
             }
             else
             // const グループ
@@ -957,19 +955,6 @@ public partial class XlsToJson : EditorWindow
                     return false;
                 }
                 posList.Add(key, new PosIndex(){ R=r+1, C=col, Name=ename });
-
-                category = true;
-            }
-
-            if (category == true)
-            {
-                if (marginrow_between_category > 0)
-                {
-                    // 各カテゴリ間は最低マージン 2 行必要
-                    LogError(eMsg.NEED_BLANKROW, name, GetXLS_RC(r, col), MARGINROW_BETWEEN_CTG);
-                    return false;
-                }
-                marginrow_between_category = MARGINROW_BETWEEN_CTG;
             }
         }
 

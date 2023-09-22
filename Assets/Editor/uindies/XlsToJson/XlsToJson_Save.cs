@@ -9,7 +9,7 @@ public partial class XlsToJson : EditorWindow
     /// <summary>
     /// シートを保存
     /// </summary>
-    void saveSheet(List<SheetEntity> list)
+    void saveSheet(List<SheetEntity> list, List<SheetEntity> alllist)
     {
         int cnt = 0;
         
@@ -19,8 +19,8 @@ public partial class XlsToJson : EditorWindow
 
             var so_import_execlist = new StringBuilder();
             var so_export_execlist = new StringBuilder();
-            var j_import_execlist = new StringBuilder();
-            var j_export_execlist = new StringBuilder();
+            var j_import_execlist  = new StringBuilder();
+            var j_export_execlist  = new StringBuilder();
 
             int max = list.Count*3;
             foreach (SheetEntity ent in list)
@@ -50,6 +50,11 @@ public partial class XlsToJson : EditorWindow
 
                 saveJson(ent, dataDir, importerJson);
                 saveScriptObj(ent, dataDir, importerScriptObj);
+            }
+
+            foreach (SheetEntity ent in alllist)
+            {
+                string sheetName = ent.SheetName;
 
                 so_import_execlist.AppendLine($"                new {PREFIX_SCRIPTOBJ}{sheetName}_Import(),");
                 so_export_execlist.AppendLine($"        {PREFIX_SCRIPTOBJ}{sheetName}_Export.Exec(srcbook, newbook, exportDirectory);");
