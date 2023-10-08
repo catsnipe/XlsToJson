@@ -218,7 +218,14 @@ public partial class XlsToJson : EditorWindow
                     sb_index_find.AppendLine($"\t\t\tRows.ForEach( (row) => {{ if ({name}.ContainsKey(row.{member.Key}) == false) {name}.Add(row.{member.Key}, row); }} );");
                     sb_index_find.AppendLine( "\t\t}");
                     sb_index_find.AppendLine( "\t\t");
-                    sb_index_find.AppendLine($"\t\tif ({name}.ContainsKey(val) == false)");
+                    if (type == "string")
+                    {
+                        sb_index_find.AppendLine($"\t\tif (val == null || {name}.ContainsKey(val) == false)");
+                    }
+                    else
+                    {
+                        sb_index_find.AppendLine($"\t\tif ({name}.ContainsKey(val) == false)");
+                    }
                     sb_index_find.AppendLine( "\t\t{");
                     sb_index_find.AppendLine( "\t\t\tif (errorLog == true)");
                     sb_index_find.AppendLine( "\t\t\t{");
