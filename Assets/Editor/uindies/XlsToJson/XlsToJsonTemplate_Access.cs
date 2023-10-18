@@ -123,7 +123,14 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour
     
     static void setLastId()
     {
-        lastId = table.Rows.Max(r => r.ID);
+        if (table == null || table.Rows == null || table.Rows.Count == 0)
+        {
+            lastId = 0;
+        }
+        else
+        {
+            lastId = table.Rows.Max(r => r.ID);
+        }
     }
 #endif
 
