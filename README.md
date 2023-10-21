@@ -1,4 +1,4 @@
-# [unity]Xls To Json or Scriptable Object
+# [unity] Xls To Json or Scriptable Object
 
 Unity: Convert excel sheet to Json / Scriptable object
 
