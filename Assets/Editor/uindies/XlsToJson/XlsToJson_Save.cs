@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEditor;
+using UnityEngine;
 
 public partial class XlsToJson : EditorWindow
 {
@@ -15,6 +16,19 @@ public partial class XlsToJson : EditorWindow
         
         try
         {
+            string nameNoExt    = Path.GetFileNameWithoutExtension(IF_XLS_TO_JSON_ACCESSOR);
+            string ifInputPath  = pathCombine(searchXlsToJsonDirectory(), IF_XLS_TO_JSON_ACCESSOR);
+            string ifOutputPath = pathCombine(classDir, nameNoExt + ".cs");
+
+            string[] files = Directory.GetFiles(Application.dataPath, nameNoExt + ".cs", SearchOption.AllDirectories);
+
+            if (files.Length > 0)
+            {
+                ifOutputPath = files[0];
+            }
+            File.Copy(ifInputPath, ifOutputPath, true);
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+
             fileWriteStart();
 
             var so_import_execlist = new StringBuilder();

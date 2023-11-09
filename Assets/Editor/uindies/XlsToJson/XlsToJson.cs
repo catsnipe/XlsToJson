@@ -96,6 +96,9 @@ public partial class XlsToJson : EditorWindow
     const string EXPORT_TPL_JSON            = "JsonTemplate_Export.txt";
     const string EXPORT_TPL_JSON_ALL        = "AllJsonTemplate_Export.txt";
     const string EXPORT_FILENAME_SUFFIX     = "_Export";
+    const string TEMPLATE_CLASS             = "XlsToJsonTemplate_Class.txt";
+    const string TEMPLATE_ACCESS            = "XlsToJsonTemplate_Access.txt";
+    const string IF_XLS_TO_JSON_ACCESSOR    = "iXlsToJsonAccessor.txt";
     const string ASSETS_HOME                = "Assets/";
     const string ASSETS_RESOURCE            = "Assets/Resources/";
     const string PREFIX_CLASS               = "Class_";
@@ -407,6 +410,7 @@ public partial class XlsToJson : EditorWindow
     static string                     prefsKey;
     static string                     classDir;
     static string                     dataDir;
+    static string                     xlsToJsonDir;
     static FileNameEx                 table;
     static FileNameEx                 accessor;
     static FileNameEx                 data;
@@ -1026,15 +1030,18 @@ public partial class XlsToJson : EditorWindow
     /// </summary>
     static string searchXlsToJsonDirectory()
     {
-        string[] files = Directory.GetFiles(Application.dataPath, $"{nameof(XlsToJson)}.cs", SearchOption.AllDirectories);
-        if (files != null && files.Length == 1)
+        if (xlsToJsonDir == null)
         {
-            // フルパスから相対パスに
-            string path = Path.GetDirectoryName(files[0]).Replace("\\", "/");
-            path = ASSETS_HOME + path.Replace(Application.dataPath + "/", "");
-            return path;
+            string[] files = Directory.GetFiles(Application.dataPath, $"{nameof(XlsToJson)}.cs", SearchOption.AllDirectories);
+            if (files != null && files.Length == 1)
+            {
+                // フルパスから相対パスに
+                string path = Path.GetDirectoryName(files[0]).Replace("\\", "/");
+                xlsToJsonDir = ASSETS_HOME + path.Replace(Application.dataPath + "/", "");
+            }
         }
-        return null;
+
+        return xlsToJsonDir;
     }
     
     /// <summary>

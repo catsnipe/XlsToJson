@@ -9,7 +9,7 @@ using UnityEditor;
 /// <summary>
 /// XlsToJsonTemplate_Access: ScriptableObject singleton accessor
 /// </summary>
-public partial class XlsToJsonTemplate_Access : MonoBehaviour
+public partial class XlsToJsonTemplate_Access : MonoBehaviour, iXlsToJsonAccessor
 {
     [SerializeField]
     XlsToJsonTemplate_Class        Table;
@@ -45,10 +45,26 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour
     /// </summary>
     void Awake()
     {
+        Initialize();
+    }
+
+    /// <summary>
+    /// Initialize
+    /// </summary>
+    public void Initialize()
+    {
         table = Table;
 #if UNITY_EDITOR
         setLastId();
 #endif
+    }
+
+    /// <summary>
+    /// Check Serialized table Exists
+    /// </summary>
+    public bool CheckSerializedTableExists()
+    {
+        return Table != null;
     }
 
     /// <summary>

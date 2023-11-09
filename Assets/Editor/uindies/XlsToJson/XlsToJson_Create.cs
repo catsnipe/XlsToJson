@@ -13,15 +13,16 @@ public partial class XlsToJson : EditorWindow
     /// </summary>
     static string createTableClass(SheetEntity report)
     {
-        ISheet                        sheet         = report.Sheet;
-        Dictionary<string, ClassInfo> classes       = report.Classes;
-        Dictionary<string, EnumInfo>  enums         = report.Enums;
-        Dictionary<string, ConstInfo> consts        = report.Consts;
-        string                        tablename     = report.TableName;
+        ISheet                        sheet          = report.Sheet;
+        Dictionary<string, ClassInfo> classes        = report.Classes;
+        Dictionary<string, EnumInfo>  enums          = report.Enums;
+        Dictionary<string, ConstInfo> consts         = report.Consts;
+        string                        tablename      = report.TableName;
 
-        string                        import_dir    = searchXlsToJsonDirectory();
-        string                        template_file = $"{nameof(XlsToJsonTemplate_Class)}.cs";
-        string                        text          = null;
+        string                        import_dir     = searchXlsToJsonDirectory();
+        string                        template_file  = TEMPLATE_CLASS;
+        string                        template_class = Path.GetFileNameWithoutExtension(TEMPLATE_CLASS);
+        string                        text           = null;
 
         if (import_dir != null)
         {
@@ -286,7 +287,7 @@ public partial class XlsToJson : EditorWindow
         text  = text.Replace(CLASSTMPL_CODE_SIGN + "\n", "");
         text  = text.Replace(CLASSTMPL_CODE_ENDSIGN + "\n", "");
         text  = text.Replace("\t", "    ");
-        text  = text.Replace(nameof(XlsToJsonTemplate_Class), tablename);
+        text  = text.Replace(template_class, tablename);
 
         return text;
     }
@@ -301,9 +302,9 @@ public partial class XlsToJson : EditorWindow
         string                        accessorname  = report.AccessorName;
         string                        tablename     = report.TableName;
 
-        string import_dir    = searchXlsToJsonDirectory();
-        string template_file = $"{nameof(XlsToJsonTemplate_Access)}.cs";
-        string text          = null;
+        string                        import_dir    = searchXlsToJsonDirectory();
+        string                        template_file = TEMPLATE_ACCESS;
+        string                        text          = null;
 
         if (import_dir != null)
         {
@@ -366,9 +367,12 @@ public partial class XlsToJson : EditorWindow
             }
         }
 
+        string template_access = Path.GetFileNameWithoutExtension(TEMPLATE_ACCESS);
+        string template_class  = Path.GetFileNameWithoutExtension(TEMPLATE_CLASS);
+
         text = text.Replace("\r\n", "\n");
-        text = text.Replace(nameof(XlsToJsonTemplate_Class), tablename);
-        text = text.Replace(nameof(XlsToJsonTemplate_Access), accessorname);
+        text = text.Replace(template_class, tablename);
+        text = text.Replace(template_access, accessorname);
         text = text.Replace(CTMPL_INDEX_FIND_ENDSIGN + "\n", sb_index_find.ToString());
         text = text.Replace(CTMPL_INDEX_FIND_SIGN + "\n", "");
         text = text.Replace("\t", "    ");
