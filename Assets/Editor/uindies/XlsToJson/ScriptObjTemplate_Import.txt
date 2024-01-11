@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using NPOI.SS.UserModel;
 using UnityEditor;
 using UnityEngine;
@@ -43,16 +44,17 @@ public class ScriptObj_$$SHEET_NAME$$_Import : iXlsToJsonImporter
             return;
         }
 
-        var posList = new Dictionary<string, XlsToJson.PosIndex>();
-        string[,] grid = XlsToJson.GetGrid(sheet, posList);
-        XlsToJson.PosIndex id = posList[XlsToJson.TRIGGER_ID];
+        var       idList  = new HashSet<int>();
+        var       posList = new Dictionary<string, XlsToJson.PosIndex>();
+        string[,] grid    = XlsToJson.GetGrid(sheet, posList);
+        var       index   = posList[XlsToJson.TRIGGER_ID];
 
         XlsToJson.InitAssembly();
 
-        for (int r = id.R + 2; r < grid.GetUpperBound(0)+1; r++)
+        for (int r = index.R + 2; r < grid.GetUpperBound(0)+1; r++)
         {
             var row = new $$TABLE_NAME$$.Row();
-            int c = id.C;
+            int c = index.C;
 
             string cell = grid[r, c];
 
@@ -63,6 +65,11 @@ public class ScriptObj_$$SHEET_NAME$$_Import : iXlsToJsonImporter
             }
             // Comment
             if (XlsToJson.CheckSignComment(cell) == true)
+            {
+                continue;
+            }
+            // Invalid ID
+            if (checkId(idList, r, cell) == false)
             {
                 continue;
             }
@@ -90,4 +97,30 @@ $$IMPORT_ROW$$
         return true;
     }
 
+    static bool checkId(HashSet<int> idList, int r, string cell)
+    {
+        if (cell == null || Regex.IsMatch(cell, "[0-9]") == false)
+        {
+            Debug.LogWarning($"{r+1}: [{cell}] is unauthorized ID format. The row was not imported.");
+            return false;
+        }
+
+        if (int.TryParse(cell, out int id) == false)
+        {
+            Debug.LogWarning($"{r+1}: [{cell}] is unauthorized ID format. The row was not imported.");
+            return false;
+        }
+
+        if (idList.Contains(id) == true)
+        {
+            Debug.LogWarning($"{r+1}: [{id}] Duplicate IDs are not allowed, so rows were not imported.");
+            return false;
+        }
+        else
+        {
+            idList.Add(id);
+        }
+
+        return true;
+    }
 }
