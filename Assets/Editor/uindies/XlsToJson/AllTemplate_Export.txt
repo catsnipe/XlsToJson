@@ -3,12 +3,12 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using UnityEditor;
 
-public class AllJson_$$EXCELL_NAME$$_Export
+public class All$$TYPE_SHORTNAME$$_$$EXCELL_NAME$$_Export
 {
     static readonly string excellFilename  = "$$EXCELL_FILENAME$$";
     static readonly string exportDirectory = "$$EXPORT_DIRECTORY$$";
 
-    const string Item = "Tools/XlsToJson/$$EXCELL_FILENAME$$/Update Excel from JsonData";
+    const string Item = "Tools/XlsToJson/$$EXCELL_FILENAME$$/Update Excel from $$TYPE_NAME$$";
 
     [MenuItem (Item, priority = $$MENU_PRIORITY$$)]
     static void Open()
@@ -24,7 +24,7 @@ public class AllJson_$$EXCELL_NAME$$_Export
         }
         var xlsPath = Path.Combine(excellDirectory, excellFilename);
 
-        if (XlsToJson.DialogSelect(XlsToJson.eMsg.JSON_EXPORT_CONFIRM, xlsPath) == false)
+        if (XlsToJson.DialogSelect(XlsToJson.eMsg.$$TYPE_CAPNAME$$_EXPORT_CONFIRM, xlsPath) == false)
         {
             return;
         }

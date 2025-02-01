@@ -1,0 +1,36 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+//$$REGION GLOBAL_ENUM$$
+//$$REGION_END GLOBAL_ENUM$$
+//$$REGION TABLE$$
+/// <summary>
+/// XlsToJson_Class
+/// </summary>
+public partial class XlsToJson_Class
+{
+//$$REGION ENUM$$
+//$$REGION_END ENUM$$
+//$$REGION CONST$$
+//$$REGION_END CONST$$
+    /// <summary>
+    /// Wrapper for JsonUtility
+    /// </summary>
+    [System.Serializable]
+    public class Wrapper
+    {
+        public List<Row> Rows = new List<Row>();
+    }
+
+//$$REGION CLASS$$
+    /// <summary>
+    /// １行分のフィールドリスト
+    /// </summary>
+    public class Row
+    {
+        public int ID;
+    }
+//$$REGION_END CLASS$$
+}
+//$$REGION_END TABLE$$

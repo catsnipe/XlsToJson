@@ -1,14 +1,18 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using NPOI.SS.UserModel;
 using UnityEditor;
 using UnityEngine;
 
-public class ScriptObj_$$SHEET_NAME$$_Import : iXlsToJsonImporter
+public class StaticValue_$$SHEET_NAME$$_Import : iXlsToJsonImporter
 {
-    static readonly string exportPath = "$$EXPORT_PATH$$";
-    static readonly string sheetName  = "$$SHEET_ORG$$";
-    static bool            success    = false;
+    const string CLASSTMPL_DATA_SIGN    = "//$$REGION DATA$$";
+    const string CLASSTMPL_DATA_ENDSIGN = "//$$REGION_END DATA$$";
+
+    static readonly string exportPath   = "$$EXPORT_PATH$$";
+    static readonly string sheetName    = "$$SHEET_ORG$$";
+    static bool            success      = false;
 
     public string GetExportPath()
     {
@@ -25,15 +29,6 @@ public class ScriptObj_$$SHEET_NAME$$_Import : iXlsToJsonImporter
         success = true;
         var exportFilepath = Path.Combine(exportDirectory, exportPath);
 
-        var data = ($$TABLE_NAME$$)AssetDatabase.LoadAssetAtPath(exportFilepath, typeof($$TABLE_NAME$$));
-        if (data == null)
-        {
-            data = ScriptableObject.CreateInstance<$$TABLE_NAME$$>();
-            AssetDatabase.CreateAsset((ScriptableObject)data, exportFilepath);
-        }
-        data.hideFlags = HideFlags.None;
-        data.Rows.Clear();
-
         // check sheet
         var sheet = book.GetSheet(sheetName);
         if (sheet == null)
@@ -49,7 +44,9 @@ public class ScriptObj_$$SHEET_NAME$$_Import : iXlsToJsonImporter
 
         XlsToJson.InitAssembly();
 
-        for (int r = id.R + 2; r < grid.GetUpperBound(0)+1; r++)
+        var sb = new StringBuilder();
+
+        for (int r = id.R + 2; r < grid.GetUpperBound(0) + 1; r++)
         {
             var row = new $$TABLE_NAME$$.Row();
             int c = id.C;
@@ -67,14 +64,40 @@ public class ScriptObj_$$SHEET_NAME$$_Import : iXlsToJsonImporter
                 continue;
             }
 
+            string line = "    new Row() {";
+
 $$IMPORT_ROW$$
-            data.Rows.Add(row);
+            line += "},";
+            sb.AppendLine(line);
         }
 
-        // save scriptable object
-        ScriptableObject obj = AssetDatabase.LoadAssetAtPath(exportFilepath, typeof(ScriptableObject)) as ScriptableObject;
-        EditorUtility.SetDirty(obj);
-        AssetDatabase.SaveAssetIfDirty(obj);
+        if (File.Exists(exportFilepath) == false)
+        {
+            Debug.LogError($"[XlsToJson] error: file not found. '{exportFilepath}'.");
+        }
+        else
+        {
+            var text   = File.ReadAllText(exportFilepath);
+
+            int index0 = text.IndexOf(CLASSTMPL_DATA_SIGN) + CLASSTMPL_DATA_SIGN.Length + 2;
+            int index1 = text.IndexOf(CLASSTMPL_DATA_ENDSIGN);
+
+            if (index0 < 0 || index1 < 0)
+            {
+                Debug.LogError($"[XlsToJson] error: illegal format. '{exportFilepath}'.");
+            }
+            else
+            {
+                if (index1 > index0)
+                {
+                    text = text.Remove(index0, index1 - index0);
+                }
+                text = text.Replace(CLASSTMPL_DATA_ENDSIGN, sb.ToString() + CLASSTMPL_DATA_ENDSIGN);
+                File.WriteAllText(exportFilepath, text);
+            }
+
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+        }
 
         Debug.Log($"[XlsToJson] create '{exportFilepath}'.");
     }
@@ -89,5 +112,4 @@ $$IMPORT_ROW$$
         }
         return true;
     }
-
 }

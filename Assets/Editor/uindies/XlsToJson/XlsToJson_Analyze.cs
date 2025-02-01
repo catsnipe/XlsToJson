@@ -1,4 +1,26 @@
-﻿using System;
+﻿// Copyright (c) catsnipe
+// Released under the MIT license
+
+// Permission is hereby granted, free of charge, to any person obtaining a 
+// copy of this software and associated documentation files (the 
+// "Software"), to deal in the Software without restriction, including 
+// without limitation the rights to use, copy, modify, merge, publish, 
+// distribute, sublicense, and/or sell copies of the Software, and to 
+// permit persons to whom the Software is furnished to do so, subject to 
+// the following conditions:
+   
+// The above copyright notice and this permission notice shall be 
+// included in all copies or substantial portions of the Software.
+   
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -8,6 +30,8 @@ using UnityEngine;
 
 public partial class XlsToJson : EditorWindow
 {
+    static Dictionary<string, EnumInfo> allEnums;
+
     /// <summary>
     /// enum を解析
     /// </summary>
@@ -39,12 +63,25 @@ public partial class XlsToJson : EditorWindow
                 continue;
             }
             
+            string key = pair.Key;
+            if (key.Contains(TRIGGER_GLOBAL_ENUM) == false)
+            {
+                key = $"{PREFIX_CLASS}{pair.Key}";
+            }
+
             PosIndex top = pair.Value;
 
             EnumInfo info = new EnumInfo();
             info.GroupName = top.Name;
             info.Comment = getCommentRight(grid, top.R, top.C);
-            enums.Add(pair.Key, info);
+            enums.Add(key, info);
+
+            if (allEnums.ContainsKey(key) == true)
+            {
+                LogError(eMsg.SAMEMEMBER, report.SheetName, "", key);
+                return false;
+            }
+            allEnums.Add(key, info);
 
             for (int r = top.R+1; r < grid.GetUpperBound(0)+1; r++)
             {
@@ -258,11 +295,10 @@ public partial class XlsToJson : EditorWindow
                 {
                     typestr = typestr.Replace(SIGN_ENUM, "").Trim();
                     isenum  = true;
-                    if (typestr.IndexOf('.') > 0)
+                    if (typestr.IndexOf('.') <= 0)
                     {
-                        // XXXXXX.eNum -> XXXXXX_Table.eNum
-//typestr = typestr.Remove(typestr.IndexOf('.'));
-//typestr = typestr.Insert(0, report.TableName);
+                        // eTest -> Class_Test.eTest
+                        typestr = getLocalEnum(typestr, PREFIX_CLASS + report.ClassName);
                     }
                 }
 
@@ -318,5 +354,34 @@ public partial class XlsToJson : EditorWindow
         }
         return true;
     }
-    
+
+    static string getLocalEnum(string typestr, string currentClassName)
+    {
+        string isListString = "";
+        string searchString = typestr;
+
+        if (typestr.IndexOf("[]") >= 0)
+        {
+            isListString = "[]";
+            searchString = searchString.Replace("[]", "");
+        }
+
+        foreach (var pair in allEnums)
+        {
+            if (pair.Key.IndexOf(TRIGGER_GLOBAL_ENUM) < 0 && pair.Value.GroupName == searchString)
+            {
+                if (string.IsNullOrEmpty(currentClassName) == false && pair.Key.IndexOf(currentClassName) >= 0)
+                {
+                    // 同じクラスなので省略できる
+                    return typestr;
+                }
+                else
+                {
+                    return pair.Key + isListString;
+                }
+            }
+        }
+
+        return typestr;
+    }
 }

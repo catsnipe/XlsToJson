@@ -1,4 +1,26 @@
-﻿using NPOI.SS.UserModel;
+﻿// Copyright (c) catsnipe
+// Released under the MIT license
+
+// Permission is hereby granted, free of charge, to any person obtaining a 
+// copy of this software and associated documentation files (the 
+// "Software"), to deal in the Software without restriction, including 
+// without limitation the rights to use, copy, modify, merge, publish, 
+// distribute, sublicense, and/or sell copies of the Software, and to 
+// permit persons to whom the Software is furnished to do so, subject to 
+// the following conditions:
+   
+// The above copyright notice and this permission notice shall be 
+// included in all copies or substantial portions of the Software.
+   
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+using NPOI.SS.UserModel;
 
 public class ExcelRow
 {
@@ -14,32 +36,62 @@ public class ExcelRow
         row = sheet.GetRow(rowIndex) ?? sheet.CreateRow(rowIndex);
     }
 
-    public void CellValue(int columnIndex, bool value)
+    public ICell CellValue(int columnIndex, bool value, ICellStyle style = null)
     {
-        getCell(columnIndex).SetCellValue(value);
+        ICell cell = GetCell(columnIndex);
+        cell.SetCellValue(value);
+        if (style != null)
+        {
+            cell.CellStyle = style;
+        }
+        return cell;
     }
 
-    public void CellValue(int columnIndex, System.DateTime value)
+    public ICell CellValue(int columnIndex, System.DateTime value, ICellStyle style = null)
     {
-        getCell(columnIndex).SetCellValue(value);
+        ICell cell = GetCell(columnIndex);
+        cell.SetCellValue(value);
+        if (style != null)
+        {
+            cell.CellStyle = style;
+        }
+        return cell;
     }
 
-    public void CellValue(int columnIndex, int value)
+    public ICell CellValue(int columnIndex, int value, ICellStyle style = null)
     {
-        getCell(columnIndex).SetCellValue(value);
+        ICell cell = GetCell(columnIndex);
+        cell.SetCellValue(value);
+        if (style != null)
+        {
+            cell.CellStyle = style;
+        }
+        return cell;
     }
 
-    public void CellValue(int columnIndex, float value)
+    public ICell CellValue(int columnIndex, float value, ICellStyle style = null)
     {
-        getCell(columnIndex).SetCellValue(value);
+        ICell cell = GetCell(columnIndex);
+        cell.SetCellValue(value);
+        if (style != null)
+        {
+            cell.CellStyle = style;
+        }
+        return cell;
     }
 
-    public void CellValue(int columnIndex, string value)
+    public ICell CellValue(int columnIndex, string value, ICellStyle style = null)
     {
-        getCell(columnIndex).SetCellValue(value);
+        ICell cell = GetCell(columnIndex);
+        cell.SetCellValue(value);
+        if (style != null)
+        {
+            cell.CellStyle = style;
+        }
+        return cell;
     }
 
-    ICell getCell(int columnIndex)
+    public ICell GetCell(int columnIndex)
     {
         return row.GetCell(columnIndex) ?? row.CreateCell(columnIndex);
     }

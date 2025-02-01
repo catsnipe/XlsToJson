@@ -1,4 +1,26 @@
-﻿using System;
+﻿// Copyright (c) catsnipe
+// Released under the MIT license
+
+// Permission is hereby granted, free of charge, to any person obtaining a 
+// copy of this software and associated documentation files (the 
+// "Software"), to deal in the Software without restriction, including 
+// without limitation the rights to use, copy, modify, merge, publish, 
+// distribute, sublicense, and/or sell copies of the Software, and to 
+// permit persons to whom the Software is furnished to do so, subject to 
+// the following conditions:
+   
+// The above copyright notice and this permission notice shall be 
+// included in all copies or substantial portions of the Software.
+   
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,6 +32,7 @@ using NPOI.XSSF.UserModel;
 using UnityEditor;
 using UnityEngine;
 using System.Security.Policy;
+using System.Text.RegularExpressions;
 
 public partial class XlsToJson : EditorWindow
 {
@@ -40,7 +63,7 @@ public partial class XlsToJson : EditorWindow
     /// <summary>
     /// 最大行数
     /// </summary>
-    const int    ROWS_MAX                   = 2000;
+    const int    ROWS_MAX                   = 5000;
     /// <summary>
     /// 最大列数
     /// </summary>
@@ -84,34 +107,41 @@ public partial class XlsToJson : EditorWindow
     const string IMPORTTMPL_EXPORT_ROW      = "$$EXPORT_ROW$$";
     const string IMPORTTMPL_EXPORT_EXECLIST = "$$EXPORT_EXEC_LIST$$";
     const string IMPORTTMPL_PRIORITY        = "$$MENU_PRIORITY$$";
+    const string IMPORTTMPL_TYPE_NAME       = "$$TYPE_NAME$$";
+    const string IMPORTTMPL_TYPE_SHORTNAME  = "$$TYPE_SHORTNAME$$";
+    const string IMPORTTMPL_TYPE_CAPNAME    = "$$TYPE_CAPNAME$$";
 
     const string IMPORT_DIRECTORY           = "importer/";
     const string IMPORT_TPL_SCRIPTOBJ       = "ScriptObjTemplate_Import.txt";
-    const string IMPORT_TPL_SCRIPTOBJ_ALL   = "AllScriptObjTemplate_Import.txt";
     const string IMPORT_TPL_JSON            = "JsonTemplate_Import.txt";
-    const string IMPORT_TPL_JSON_ALL        = "AllJsonTemplate_Import.txt";
+    const string IMPORT_TPL_STATIC          = "StaticTemplate_Import.txt";
+    const string IMPORT_TPL_ALL             = "AllTemplate_Import.txt";
     const string IMPORT_FILENAME_SUFFIX     = "_Import";
     const string EXPORT_TPL_SCRIPTOBJ       = "ScriptObjTemplate_Export.txt";
-    const string EXPORT_TPL_SCRIPTOBJ_ALL   = "AllScriptObjTemplate_Export.txt";
     const string EXPORT_TPL_JSON            = "JsonTemplate_Export.txt";
-    const string EXPORT_TPL_JSON_ALL        = "AllJsonTemplate_Export.txt";
+    const string EXPORT_TPL_ALL             = "AllTemplate_Export.txt";
     const string EXPORT_FILENAME_SUFFIX     = "_Export";
+    const string NAME_CLASS                 = "XlsToJson_Class";
+    const string NAME_ACCESS                = "XlsToJson_Access";
+    const string TEMPLATE_STATIC_CLASS      = "XlsToStaticTemplate_Class.txt";
+    const string TEMPLATE_STATIC_ACCESS     = "XlsToStaticTemplate_Access.txt";
     const string TEMPLATE_CLASS             = "XlsToJsonTemplate_Class.txt";
     const string TEMPLATE_ACCESS            = "XlsToJsonTemplate_Access.txt";
     const string IF_XLS_TO_JSON_ACCESSOR    = "iXlsToJsonAccessor.txt";
     const string ASSETS_HOME                = "Assets/";
     const string ASSETS_RESOURCE            = "Assets/Resources/";
     const string PREFIX_CLASS               = "Class_";
-    const string PREFIX_ACCESS              = "";
+    const string PREFIX_ACCESS              = "S_";
     const string PREFIX_DATA                = "Data_";
     const string PREFIX_SCRIPTOBJ           = "ScriptObj_";
     const string PREFIX_JSON                = "Json_";
+    const string PREFIX_STATIC              = "StaticValue_";
     const string PREFIXSIGN_ALL             = "All";
 
     const string PREFS_CLASS_DIRECTORY      = ".classdir";
     const string PREFS_DATA_DIRECTORY       = ".datadir";
-    const string PREFS_IMPORTER_JSON        = ".importjson";
-    const string PREFS_IMPORTER_SCRIPTOBJ   = ".importsobj";
+    const string PREFS_IMPORTER_TYPE_NO     = ".importtype";
+    const string PREFS_PRETTY_FORMAT        = ".prettyformat";
     const string PREFS_TOGETHER_CLASS       = ".together";
     const string PREFS_SHEET_NO             = ".sheetno";
     const string PREFS_PREFIX_TABLE         = ".pretable";
@@ -123,6 +153,13 @@ public partial class XlsToJson : EditorWindow
     const string PREFS_SUFFIX_DATA          = ".sufdata";
 
     static readonly string CLASS_NAME       = $"{nameof(XlsToJson)}";
+
+    public enum eImporterType
+    {
+        Json,
+        ScriptableObject,
+        StaticValue,
+    }
 
     public enum eMsg
     {
@@ -152,8 +189,10 @@ public partial class XlsToJson : EditorWindow
         CANCEL,
         JSON_EXPORT_CONFIRM,
         SCRIPTOBJ_EXPORT_CONFIRM,
+        STATICVALUE_EXPORT_CONFIRM,
         JSON_IMPORT_CONFIRM,
         SCRIPTOBJ_IMPORT_CONFIRM,
+        STATICVALUE_IMPORT_CONFIRM,
         FILE_NOTFOUND,
     }
 
@@ -263,6 +302,10 @@ public partial class XlsToJson : EditorWindow
             "Writes ScriptableObject to '{0}'. Are you sure?",
             "ScriptableObject を '{0}' に書き出します. よろしいですか？"
         } },
+        { eMsg.STATICVALUE_EXPORT_CONFIRM, new List<string>() {
+            "Writes Static Value to '{0}'. Are you sure?",
+            "Static Value を '{0}' に書き出します. よろしいですか？"
+        } },
         { eMsg.JSON_IMPORT_CONFIRM, new List<string>() {
             "Create JsonData from '{0}'. Are you sure?",
             "'{0}' から JsonData を作成します. よろしいですか？"
@@ -270,6 +313,10 @@ public partial class XlsToJson : EditorWindow
         { eMsg.SCRIPTOBJ_IMPORT_CONFIRM, new List<string>() {
             "Create ScriptableObject from '{0}'. Are you sure?",
             "'{0}' から ScriptableObject を作成します. よろしいですか？"
+        } },
+        { eMsg.STATICVALUE_IMPORT_CONFIRM, new List<string>() {
+            "Create Static Value from '{0}'. Are you sure?",
+            "'{0}' から Static Value を作成します. よろしいですか？"
         } },
         { eMsg.FILE_NOTFOUND, new List<string>() {
             "File not found. '{0}'",
@@ -414,8 +461,9 @@ public partial class XlsToJson : EditorWindow
     static FileNameEx                 table;
     static FileNameEx                 accessor;
     static FileNameEx                 data;
-    static bool                       importerJson;
-    static bool                       importerScriptObj;
+    static int                        preImporterTypeNo;
+    static int                        importerTypeNo;
+    static bool                       prettyFormat;
     static int                        preSheetNo;
     static int                        sheetNo;
 
@@ -452,14 +500,21 @@ public partial class XlsToJson : EditorWindow
         GUILayout.EndHorizontal();
         GUILayout.Space(20);
 
+        List<string> importerNames = new List<string>();
+        foreach (var type in Enum.GetValues(typeof(eImporterType)))
+        {
+            importerNames.Add(type.ToString());
+        }
+
         GUILayout.Label("[Importer]", EditorStyles.boldLabel);
         GUILayout.BeginHorizontal();
-        GUILayout.Label("json", GUILayout.Width(150));
-        importerJson = EditorGUILayout.Toggle("", importerJson, GUILayout.Width(30));
-        GUILayout.EndHorizontal();
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("scriptable object", GUILayout.Width(150));
-        importerScriptObj = EditorGUILayout.Toggle("", importerScriptObj, GUILayout.Width(30));
+        importerTypeNo = EditorGUILayout.Popup(importerTypeNo, importerNames.ToArray(), GUILayout.Width(150));
+        if (importerTypeNo == (int)eImporterType.StaticValue)
+        {
+            GUILayout.Space(20);
+            prettyFormat = EditorGUILayout.Toggle("", prettyFormat, GUILayout.Width(15));
+            EditorGUILayout.LabelField("pretty format");
+        }
         GUILayout.EndHorizontal();
         GUILayout.Space(20);
 
@@ -495,20 +550,30 @@ public partial class XlsToJson : EditorWindow
         GUI.skin.label.alignment = TextAnchor.LowerLeft;
         accessor.Suffix = EditorGUILayout.TextField(accessor.Suffix, new GUILayoutOption[] { GUILayout.Width(100) });
         GUILayout.Space(20);
-        accessor.Used = EditorGUILayout.Toggle("", accessor.Used, GUILayout.Width(30));
-        EditorGUILayout.LabelField(getMessage(eMsg.CREATE_ACCESS));
+        if (importerTypeNo != (int)eImporterType.StaticValue)
+        {
+            accessor.Used = EditorGUILayout.Toggle("", accessor.Used, GUILayout.Width(30));
+            EditorGUILayout.LabelField(getMessage(eMsg.CREATE_ACCESS));
+        }
+        else
+        {
+            accessor.Used = true;
+        }
         GUILayout.EndHorizontal();
 
         // data class name
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("asset name", GUILayout.Width(150));
-        GUI.skin.textField.alignment = TextAnchor.MiddleRight;
-        data.Prefix = EditorGUILayout.TextField(data.Prefix, new GUILayoutOption[] { GUILayout.Width(100) });
-        GUI.skin.textField.alignment = TextAnchor.LowerLeft;
-        GUILayout.Label(entity.SheetName, GUILayout.Width(200));
-        GUI.skin.label.alignment = TextAnchor.LowerLeft;
-        data.Suffix = EditorGUILayout.TextField(data.Suffix, new GUILayoutOption[] { GUILayout.Width(100) });
-        GUILayout.EndHorizontal();
+        if (importerTypeNo != (int)eImporterType.StaticValue)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("asset name", GUILayout.Width(150));
+            GUI.skin.textField.alignment = TextAnchor.MiddleRight;
+            data.Prefix = EditorGUILayout.TextField(data.Prefix, new GUILayoutOption[] { GUILayout.Width(100) });
+            GUI.skin.textField.alignment = TextAnchor.LowerLeft;
+            GUILayout.Label(entity.SheetName, GUILayout.Width(200));
+            GUI.skin.label.alignment = TextAnchor.LowerLeft;
+            data.Suffix = EditorGUILayout.TextField(data.Suffix, new GUILayoutOption[] { GUILayout.Width(100) });
+            GUILayout.EndHorizontal();
+        }
         GUILayout.Space(20);
 
         List<string> names = new List<string>();
@@ -535,6 +600,7 @@ public partial class XlsToJson : EditorWindow
                 Close();
             }
         }
+
         if (preSheetNo != sheetNo)
         {
             entity = sheetList[sheetNo];
@@ -542,6 +608,13 @@ public partial class XlsToJson : EditorWindow
             change = true;
             preSheetNo = sheetNo;
         }
+        if (preImporterTypeNo != importerTypeNo)
+        {
+            change = true;
+            preImporterTypeNo = importerTypeNo;
+        }
+
+        var importerType = enumelate(importerTypeNo, eImporterType.Json);
 
         if (change == true)
         {
@@ -551,15 +624,30 @@ public partial class XlsToJson : EditorWindow
 
             if (entity.ClassName == entity.Sheet.SheetName)
             {
-                entity.Text = createTableClass(entity);
-                if (accessor.Used == true)
+                if (importerType == eImporterType.StaticValue)
                 {
-                    entity.AccessText = createTableAccess(entity);
+                    entity.Text = createTableStaticClass(entity);
+                }
+                else
+                {
+                    entity.Text = createTableClass(entity, importerType);
                 }
             }
             else
             {
-                entity.Text = string.Format(getMessage(eMsg.USE_SAME_CLASS), entity.ClassName);
+                entity.Text = string.Format(getMessage(eMsg.USE_SAME_CLASS, entity.ClassName), entity.ClassName);
+            }
+
+            if (accessor.Used == true)
+            {
+                if (importerType == eImporterType.StaticValue)
+                {
+                    entity.AccessText = createTableStaticAccess(entity);
+                }
+                else
+                {
+                    entity.AccessText = createTableAccess(entity, importerType);
+                }
             }
         }
         GUILayout.EndHorizontal();
@@ -613,6 +701,8 @@ public partial class XlsToJson : EditorWindow
         xlsPath  = AssetDatabase.GetAssetPath(obj);
         prefsKey = Path.GetFileNameWithoutExtension(xlsPath);
 
+        allEnums = new Dictionary<string, EnumInfo>();
+
         // prefs からディレクトリを復帰（エクセル名単位）
         loadPrefs();
 
@@ -656,6 +746,19 @@ public partial class XlsToJson : EditorWindow
 
                 setClassName(entity);
 
+                // enum解析
+                if (analyzeEnumsAndConsts(entity) == false)
+                {
+                    continue;
+                }
+
+                sheetList.Add(entity);
+            }
+
+            for (int sheetno = 0; sheetno < sheetList.Count; ++sheetno)
+            {
+                SheetEntity entity = sheetList[sheetno];
+
                 // クラス解析
                 if (entity.PosList.ContainsKey(TRIGGER_ID) == true)
                 {
@@ -666,13 +769,7 @@ public partial class XlsToJson : EditorWindow
                 }
                 else
                 {
-                    LogWarning(eMsg.NEED_AUTONUMBER_FIELD, sheet.SheetName);
-                    continue;
-                }
-
-                // enum解析
-                if (analyzeEnumsAndConsts(entity) == false)
-                {
+                    LogWarning(eMsg.NEED_AUTONUMBER_FIELD, entity.Sheet.SheetName);
                     continue;
                 }
 
@@ -681,7 +778,6 @@ public partial class XlsToJson : EditorWindow
 
                 entity.CreateHash();
 
-                sheetList.Add(entity);
             }
 
             if (checkBaseClassVerified() == false)
@@ -771,7 +867,7 @@ public partial class XlsToJson : EditorWindow
     static void completePreSuffixName(SheetEntity entity)
     {
         entity.TableName    = table.Prefix + entity.ClassName + table.Suffix;
-        entity.AccessorName = accessor.Prefix + entity.ClassName + accessor.Suffix;
+        entity.AccessorName = accessor.Prefix + entity.SheetName + accessor.Suffix;
         entity.DataName     = data.Prefix + entity.SheetName + data.Suffix;
     }
     
@@ -1083,8 +1179,8 @@ public partial class XlsToJson : EditorWindow
     {
         EditorPrefs.SetString(prefsKey + PREFS_CLASS_DIRECTORY, classDir);
         EditorPrefs.SetString(prefsKey + PREFS_DATA_DIRECTORY, dataDir);
-        EditorPrefs.SetBool(prefsKey + PREFS_IMPORTER_JSON, importerJson);
-        EditorPrefs.SetBool(prefsKey + PREFS_IMPORTER_SCRIPTOBJ, importerScriptObj);
+        EditorPrefs.SetInt(prefsKey + PREFS_IMPORTER_TYPE_NO, importerTypeNo);
+        EditorPrefs.SetBool(prefsKey + PREFS_PRETTY_FORMAT, prettyFormat);
         EditorPrefs.SetInt(prefsKey + PREFS_SHEET_NO, sheetNo);
         EditorPrefs.SetString(prefsKey + PREFS_PREFIX_TABLE, table.Prefix);
         EditorPrefs.SetString(prefsKey + PREFS_SUFFIX_TABLE, table.Suffix);
@@ -1106,8 +1202,8 @@ public partial class XlsToJson : EditorWindow
 
         classDir          = EditorPrefs.GetString(prefsKey + PREFS_CLASS_DIRECTORY);
         dataDir           = EditorPrefs.GetString(prefsKey + PREFS_DATA_DIRECTORY);
-        importerJson      = EditorPrefs.GetBool(prefsKey + PREFS_IMPORTER_JSON, true);
-        importerScriptObj = EditorPrefs.GetBool(prefsKey + PREFS_IMPORTER_SCRIPTOBJ, true);
+        importerTypeNo    = EditorPrefs.GetInt(prefsKey + PREFS_IMPORTER_TYPE_NO);
+        prettyFormat      = EditorPrefs.GetBool(prefsKey + PREFS_PRETTY_FORMAT);
         sheetNo           = EditorPrefs.GetInt(prefsKey + PREFS_SHEET_NO);
         preSheetNo        = -1;
 
@@ -1260,5 +1356,34 @@ public partial class XlsToJson : EditorWindow
             msg = string.Format(msg, objs);
         }
         return msg;
+    }
+
+    static T enumelate<T>(object o, T initval)
+    {
+        T otype = initval;
+
+        if (o != null)
+        {
+            if (o is string)
+            {
+                var s = o.ToString();
+
+                s = Regex.Replace(
+                        s,
+                        @"\b[a-z]",
+                        match => match.Value.ToUpper(),
+                        RegexOptions.Compiled
+                    );
+
+                o = s;
+            }
+
+            if (Enum.IsDefined(typeof(T), o) == true)
+            {
+                otype = (T)Enum.Parse(typeof(T), o.ToString());
+            }
+        }
+
+        return otype;
     }
 }

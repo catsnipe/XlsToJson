@@ -1,0 +1,51 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+using static XlsToJson_Class;
+
+/// <summary>
+/// XlsToJson_Access: singleton accessor
+/// </summary>
+public partial class XlsToJson_Access
+{
+    /// <summary>
+    /// データカウント
+    /// </summary>
+    public int Count
+    {
+        get
+        {
+            return Rows == null ? 0 : Rows.Count;
+        }
+    }
+
+    /// <summary>
+    /// テーブルデータ
+    /// </summary>
+//$$REGION INDEX$$
+//$$REGION END_INDEX$$
+
+    static List<Row> Rows = new List<Row>()
+    {
+//$$REGION DATA$$
+//$$REGION_END DATA$$
+    };
+
+    /// <summary>
+    /// 行を配列順で取得する
+    /// </summary>
+    /// <param name="index">配列番号</param>
+    public Row GetRow(int index)
+    {
+        if (index < 0 || index >= Rows.Count)
+        {
+            Debug.LogError($"XlsToJson_Access: out of range. index = {index}");
+            return null;
+        }
+        return Rows[index];
+    }
+
+//$$REGION INDEX_FIND$$
+//$$REGION END_INDEX_FIND$$
+}
