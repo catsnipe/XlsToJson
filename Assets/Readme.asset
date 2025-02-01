@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcf7219bab7fe46a1ad266029b2fee19, type: 3}
+  m_Name: Readme
+  m_EditorClassIdentifier: 
+  icon: {fileID: 2800000, guid: 8953c3317790e264989a0327c0b30326, type: 3}
+  title: XlsToJson Plugin
+  sections:
+  - heading: Starting Guide
+    text: 1. R-Click to SampleData > XlsToJson Settings... > Create All
+    linkText: 
+    url: 
+  - heading: 
+    text: 2. Tools > XlsToJson > SampleData > Create
+    linkText: 
+    url: 
+  - heading: 
+    text: 3. Attach S_Stage1.cs to GameObject
+    linkText: 
+    url: 
+  - heading: 
+    text: 4. Attach Data_Stage1 to S_Stage
+    linkText: 
+    url: 
+  - heading: 
+    text: '[Code] S_Stage1.Rows.ForEach(r => Debug.Log(r.BgName));'
+    linkText: 
+    url: 
+  - heading: Information
+    text: 
+    linkText: See GitHub
+    url: https://github.com/catsnipe/XlsToJson
+  loadedLayout: 1
