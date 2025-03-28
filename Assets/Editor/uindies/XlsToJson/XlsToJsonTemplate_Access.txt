@@ -12,7 +12,10 @@ using UnityEditor;
 public partial class XlsToJsonTemplate_Access : MonoBehaviour, iXlsToJsonAccessor
 {
     [SerializeField]
-    XlsToJsonTemplate_Class        Table;
+    XlsToJsonTemplate_Class
+                    Table;
+    [SerializeField]
+    TextAsset       JsonData;
 
     /// <summary>
     /// データカウント
@@ -53,7 +56,12 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour, iXlsToJsonAccesso
     /// </summary>
     public void Initialize()
     {
-        table = Table;
+        table = Table == null ? new XlsToJsonTemplate_Class() : Table;
+        if (JsonData != null)
+        {
+            table.SetRowsByJson(JsonData.text);
+        }
+
 #if UNITY_EDITOR
         setLastId();
 #endif
