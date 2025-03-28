@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 #if UNITY_EDITOR
 using System.Linq;
 using UnityEditor;
@@ -16,6 +17,9 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour, iXlsToJsonAccesso
                     Table;
     [SerializeField]
     TextAsset       JsonData;
+
+    [SerializeField]
+    UnityEvent      OnInitialize;
 
     /// <summary>
     /// データカウント
@@ -65,6 +69,8 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour, iXlsToJsonAccesso
 #if UNITY_EDITOR
         setLastId();
 #endif
+
+        OnInitialize?.Invoke();
     }
 
     /// <summary>
