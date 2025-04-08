@@ -60,7 +60,7 @@ public partial class XlsToJsonTemplate_Access : MonoBehaviour, iXlsToJsonAccesso
     /// </summary>
     public void Initialize()
     {
-        table = Table == null ? new XlsToJsonTemplate_Class() : Table;
+        table = Table == null ? XlsToJsonTemplate_Class.CreateInstance() : Table;
         if (JsonData != null)
         {
             table.SetRowsByJson(JsonData.text);

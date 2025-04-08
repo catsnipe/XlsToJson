@@ -61,14 +61,6 @@ public class XlsToJsonTemplate_Class : ScriptableObject
     }
 
     /// <summary>
-    /// .ctor
-    /// </summary>
-    public XlsToJsonTemplate_Class()
-    {
-        Rows = new List<Row>();
-    }
-    
-    /// <summary>
     /// set json data
     /// </summary>
     public void SetRowsByJson(string json)
