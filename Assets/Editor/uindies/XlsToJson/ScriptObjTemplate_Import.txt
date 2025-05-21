@@ -31,6 +31,10 @@ public class ScriptObj_$$SHEET_NAME$$_Import : iXlsToJsonImporter
             data = ScriptableObject.CreateInstance<$$TABLE_NAME$$>();
             AssetDatabase.CreateAsset((ScriptableObject)data, exportFilepath);
         }
+        if (data.Rows == null)
+        {
+            data.Rows = new List<$$TABLE_NAME$$.Row>();
+        }
         data.hideFlags = HideFlags.None;
         data.Rows.Clear();
 
