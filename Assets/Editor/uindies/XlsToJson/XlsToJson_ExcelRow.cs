@@ -80,6 +80,28 @@ public class ExcelRow
         return cell;
     }
 
+    public ICell CellValue(int columnIndex, double value, ICellStyle style = null)
+    {
+        ICell cell = GetCell(columnIndex);
+        cell.SetCellValue(value);
+        if (style != null)
+        {
+            cell.CellStyle = style;
+        }
+        return cell;
+    }
+
+    public ICell CellValue(int columnIndex, decimal value, ICellStyle style = null)
+    {
+        ICell cell = GetCell(columnIndex);
+        cell.SetCellValue((double)value);
+        if (style != null)
+        {
+            cell.CellStyle = style;
+        }
+        return cell;
+    }
+
     public ICell CellValue(int columnIndex, string value, ICellStyle style = null)
     {
         ICell cell = GetCell(columnIndex);
