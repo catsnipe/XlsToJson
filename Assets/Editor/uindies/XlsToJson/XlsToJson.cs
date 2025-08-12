@@ -63,7 +63,7 @@ public partial class XlsToJson : EditorWindow
     /// <summary>
     /// 最大行数
     /// </summary>
-    const int    ROWS_MAX                   = 5000;
+    const int    ROWS_MAX                   = 1000;
     /// <summary>
     /// 最大列数
     /// </summary>
@@ -211,12 +211,12 @@ public partial class XlsToJson : EditorWindow
             "インポートできる型ではありません. type:{0} member:{1}"
         } },
         { eMsg.ROWMAXOVER, new List<string>() {
-            "[{0}] Maximum number of rows possible has been exceeded. [{1}]\r\n- Cell may contain invisible whitespace.\r\n- If you need to increase the maximum, change the value of " + CLASS_NAME + ".ROWS_MAX.",
-            "[{0}] 行が可能最大数を超えています. [{1}]\r\n- セルに見えない空白文字が含まれている可能性があります.\r\n- 最大を増やす必要があれば、" + CLASS_NAME + ".ROWS_MAX の値を変更します."
+            "[{0}] The number of rows exceeds {1}. [{2}]\r\n- There may be invisible blank rows included.",
+            "[{0}] 行が {1} 行を超えています. [{2}]\r\n- 見えない空白行が含まれている可能性があります."
         } },
         { eMsg.COLMAXOVER, new List<string>() {
-            "[{0}] Maximum number of columns possible has been exceeded. [{1}]\r\n- Cell may contain invisible whitespace.\r\n- If you need to increase the maximum, change the value of " + CLASS_NAME + ".COLS_MAX.",
-            "[{0}] 列が可能最大数を超えています. [{1}]\r\n- セルに見えない空白文字が含まれている可能性があります.\r\n- 最大を増やす必要があれば、" + CLASS_NAME + ".COLS_MAX の値を変更します."
+            "[{0}] column exceeds the {1} column. [{2}]\r\n- There may be invisible whitespace characters in the cell.",
+            "[{0}] 列が {1} 列を超えています. [{2}]\r\n- セルに見えない空白文字が含まれている可能性があります."
         } },
         { eMsg.ID_ONLYONE, new List<string>() {
             "[{0}: {1}] Only one 'ID' is defined per table.",
@@ -915,13 +915,11 @@ public partial class XlsToJson : EditorWindow
         // 予め決めておいたバッファ最大量を超える場合、エラー
         if (rowMax >= ROWS_MAX)
         {
-            LogError(eMsg.ROWMAXOVER, name, $"{rowMax} >= {ROWS_MAX}");
-            return false;
+            LogWarning(eMsg.ROWMAXOVER, name, ROWS_MAX, $"Rows = {rowMax}");
         }
         if (colMax >= COLS_MAX)
         {
-            LogError(eMsg.COLMAXOVER, name, $"{colMax} >= {COLS_MAX}");
-            return false;
+            LogWarning(eMsg.COLMAXOVER, name, COLS_MAX, $"Columns = {colMax}");
         }
 
         return true;
