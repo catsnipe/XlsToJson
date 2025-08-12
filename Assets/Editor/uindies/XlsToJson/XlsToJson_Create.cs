@@ -932,6 +932,11 @@ public partial class XlsToJson : EditorWindow
                 break;
             }
 
+            if (c > col)
+            {
+                sb_import.AppendLine($"\t\t\tcell = grid[r, ++c];");
+            }
+
             if (typestr == null)
             {
                 typestr = "";
@@ -1146,11 +1151,6 @@ public partial class XlsToJson : EditorWindow
                     }
                     sb_export.AppendLine($"\t\t\terow.CellValue(c++, row.{member}[{listCount++}]);");
                 }
-            }
-
-            if (c < grid.GetUpperBound(1))
-            {
-                sb_import.AppendLine($"\t\t\tcell = grid[r, ++c];");
             }
 
             preMember = member;
