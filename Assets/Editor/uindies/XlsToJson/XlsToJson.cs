@@ -913,13 +913,22 @@ public partial class XlsToJson : EditorWindow
         }
         
         // 予め決めておいたバッファ最大量を超える場合、エラー
+        bool warning = false;
+
         if (rowMax >= ROWS_MAX)
         {
             LogWarning(eMsg.ROWMAXOVER, name, ROWS_MAX, $"Rows = {rowMax}");
+            warning = true;
         }
         if (colMax >= COLS_MAX)
         {
             LogWarning(eMsg.COLMAXOVER, name, COLS_MAX, $"Columns = {colMax}");
+            warning = true;
+        }
+
+        if (warning == false)
+        {
+            Log(eMsg.FREE, $"[{name}] Rows = {rowMax}, Columns = {colMax}");
         }
 
         return true;
