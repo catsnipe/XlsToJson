@@ -9,16 +9,30 @@ public class All$$TYPE_SHORTNAME$$_$$EXCELL_NAME$$_Import
     static readonly string excellFilename  = "$$EXCELL_FILENAME$$";
     static readonly string exportDirectory = "$$EXPORT_DIRECTORY$$";
 
-    const string Item = "Tools/XlsToJson/$$EXCELL_FILENAME$$/Create $$TYPE_NAME$$";
+    const string MenuPath = "Tools/XlsToJson/$$EXCELL_FILENAME$$/";
+    const string Item = MenuPath + "Create $$TYPE_NAME$$";
 
-    [MenuItem ("Tools/XlsToJson/$$EXCELL_FILENAME$$/[$$TYPE_NAME$$]", false, $$MENU_PRIORITY$$)]
+    [MenuItem (MenuPath + "[$$TYPE_NAME$$]", false, $$MENU_PRIORITY$$)]
     static void Title() {}
 
-    [MenuItem ("Tools/XlsToJson/$$EXCELL_FILENAME$$/[$$TYPE_NAME$$]", true)]
+    [MenuItem (MenuPath + "[$$TYPE_NAME$$]", true)]
     static bool TitleValidate() { return false; }
 
     [MenuItem (Item, priority = $$MENU_PRIORITY$$)]
     static void Open()
+    {
+        // table list
+        iXlsToJsonImporter[] classes =
+        {
+$$IMPORT_EXEC_LIST$$
+        };
+
+        imports(classes);
+    }
+
+$$IMPORT_EXEC_ONE$$
+
+    static void imports(iXlsToJsonImporter[] classes)
     {
         var excellDirectory = XlsToJson.SearchXlsDirectory(excellFilename);
         if (excellDirectory == null)
@@ -43,12 +57,6 @@ public class All$$TYPE_SHORTNAME$$_$$EXCELL_NAME$$_Import
             XlsToJson.CompleteDirectory(exportDirectory);
 
             string name = "";
-
-            // table list
-            iXlsToJsonImporter[] classes =
-            {
-$$IMPORT_EXEC_LIST$$
-            };
 
             foreach (var cls in classes)
             {

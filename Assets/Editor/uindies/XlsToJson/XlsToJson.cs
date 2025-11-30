@@ -104,6 +104,7 @@ public partial class XlsToJson : EditorWindow
     const string IMPORTTMPL_EXPORT_PATH     = "$$EXPORT_PATH$$";
     const string IMPORTTMPL_IMPORT_ROW      = "$$IMPORT_ROW$$";
     const string IMPORTTMPL_IMPORT_EXECLIST = "$$IMPORT_EXEC_LIST$$";
+    const string IMPORTTMPL_IMPORT_EXECONE  = "$$IMPORT_EXEC_ONE$$";
     const string IMPORTTMPL_EXPORT_ROW      = "$$EXPORT_ROW$$";
     const string IMPORTTMPL_EXPORT_EXECLIST = "$$EXPORT_EXEC_LIST$$";
     const string IMPORTTMPL_PRIORITY        = "$$MENU_PRIORITY$$";
@@ -151,6 +152,7 @@ public partial class XlsToJson : EditorWindow
     const string PREFS_USED_ACCESSOR        = ".usedaccess";
     const string PREFS_PREFIX_DATA          = ".predata";
     const string PREFS_SUFFIX_DATA          = ".sufdata";
+    const string PREFS_ONECREATE            = ".onecreate";
 
     static readonly string CLASS_NAME       = $"{nameof(XlsToJson)}";
 
@@ -194,6 +196,7 @@ public partial class XlsToJson : EditorWindow
         SCRIPTOBJ_IMPORT_CONFIRM,
         STATICVALUE_IMPORT_CONFIRM,
         FILE_NOTFOUND,
+        CHECK_ONECREATE,
     }
 
     static Dictionary<eMsg, List<string>> Messages = new Dictionary<eMsg, List<string>>()
@@ -322,6 +325,11 @@ public partial class XlsToJson : EditorWindow
             "File not found. '{0}'",
             "ファイルが見つかりません. '{0}'"
         } },
+        { eMsg.CHECK_ONECREATE, new List<string>() {
+            "Add this class to the data update list",
+            "このクラスをデータ更新リストに追加"
+        } },
+        
         
 
     };
@@ -458,6 +466,7 @@ public partial class XlsToJson : EditorWindow
     static string                     classDir;
     static string                     dataDir;
     static string                     xlsToJsonDir;
+    static Dictionary<string, bool>   oneCreate;
     static FileNameEx                 table;
     static FileNameEx                 accessor;
     static FileNameEx                 data;
@@ -600,6 +609,11 @@ public partial class XlsToJson : EditorWindow
                 Close();
             }
         }
+        GUILayout.Space(20);
+
+        oneCreate[sheetList[sheetNo].SheetName] =
+            EditorGUILayout.Toggle("", oneCreate[sheetList[sheetNo].SheetName], GUILayout.Width(16));
+        EditorGUILayout.LabelField(getMessage(eMsg.CHECK_ONECREATE));
 
         if (preSheetNo != sheetNo)
         {
@@ -702,6 +716,7 @@ public partial class XlsToJson : EditorWindow
         prefsKey = Path.GetFileNameWithoutExtension(xlsPath);
 
         allEnums = new Dictionary<string, EnumInfo>();
+        oneCreate = new Dictionary<string, bool>();
 
         // prefs からディレクトリを復帰（エクセル名単位）
         loadPrefs();
@@ -726,6 +741,8 @@ public partial class XlsToJson : EditorWindow
             for (int sheetno = 0; sheetno < book.NumberOfSheets; ++sheetno)
             {
                 ISheet sheet = book.GetSheetAt(sheetno);
+
+                oneCreate[sheet.SheetName] = false;
 
                 // 日本語のシートは無視
                 if (Encoding.GetEncoding("Shift_JIS").GetByteCount(sheet.SheetName) != sheet.SheetName.Length)
@@ -790,6 +807,8 @@ public partial class XlsToJson : EditorWindow
                 window.Show();
             }
         }
+
+        loadOneCreatePrefs();
     }
 
     /// <summary>
@@ -1175,8 +1194,37 @@ public partial class XlsToJson : EditorWindow
 
         // prefs にディレクトリを保存（エクセル名単位）
         savePrefs();
+        saveOneCreatePrefs();
 
         return true;
+    }
+
+    /// <summary>
+    /// prefs に単体作成するシート情報を保存
+    /// </summary>
+    static void saveOneCreatePrefs()
+    {
+        List<string> trueKeys = oneCreate
+            .Where(pair => pair.Value)
+            .Select(pair => pair.Key)
+            .ToList();
+
+        string data = string.Join(',', trueKeys);
+        EditorPrefs.SetString(prefsKey + PREFS_ONECREATE, data);
+    }
+
+    /// <summary>
+    /// prefs から単体作成するシート情報をロード
+    /// </summary>
+    static void loadOneCreatePrefs()
+    {
+        string   data  = EditorPrefs.GetString(prefsKey + PREFS_ONECREATE);
+        string[] datas = data.Split(',');
+
+        foreach(var d in datas)
+        {
+            oneCreate[d] = true;
+        }
     }
 
     /// <summary>

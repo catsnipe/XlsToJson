@@ -1353,15 +1353,35 @@ public partial class XlsToJson : EditorWindow
         string filenameOnly = Path.GetFileNameWithoutExtension(xlsPath);
         string filename     = Path.GetFileName(xlsPath);
         
-        int priority = 0;
+        int pritop = 0;
         for (int i = 0; i < filename.Length; i++)
         {
-            priority += filename[i] * 2;
+            pritop += filename[i] * 2;
         }
 
         if (import_text.IndexOf("ScriptableObject") > 0)
         {
-            priority += 10000;
+            pritop += 10000;
+        }
+
+        string[] imports = import_execlist.Replace(",", "").Replace("\r", "").Split('\n');
+        string   import_execone = "";
+
+        for (int i = 0; i < imports.Length; i++)
+        {
+            string func = imports[i].Trim();
+            if (string.IsNullOrEmpty(func) == true)
+            {
+                continue;
+            }
+            string name = func.Replace("new ScriptObj_", "").Replace("_Import()", "");
+
+            if (oneCreate[name] == true)
+            {
+                import_execone +=
+$"    [MenuItem (MenuPath + \"→ {name}\", priority = {pritop + 1 + i})]\n" +
+$"    static void Open{name}() => imports(new iXlsToJsonImporter[] {{ {func} }} );\n\n";
+            }
         }
 
         import_text = import_text.Replace(IMPORTTMPL_EXCELL_NAME, filenameOnly);
@@ -1375,7 +1395,8 @@ public partial class XlsToJson : EditorWindow
             import_text = import_text.Replace(IMPORTTMPL_EXPORT_DIR, dataDir);
         }
         import_text = import_text.Replace(IMPORTTMPL_IMPORT_EXECLIST, import_execlist);
-        import_text = import_text.Replace(IMPORTTMPL_PRIORITY, priority.ToString());
+        import_text = import_text.Replace(IMPORTTMPL_IMPORT_EXECONE, import_execone);
+        import_text = import_text.Replace(IMPORTTMPL_PRIORITY, pritop.ToString());
         import_text = import_text.Replace(IMPORTTMPL_TYPE_NAME, type_name);
         import_text = import_text.Replace(IMPORTTMPL_TYPE_SHORTNAME, type_short_name);
         import_text = import_text.Replace(IMPORTTMPL_TYPE_CAPNAME, type_cap_name);
@@ -1386,7 +1407,7 @@ public partial class XlsToJson : EditorWindow
             export_text = export_text.Replace(IMPORTTMPL_EXCELL_FILENAME, filename);
             export_text = export_text.Replace(IMPORTTMPL_EXPORT_DIR, dataDir);
             export_text = export_text.Replace(IMPORTTMPL_EXPORT_EXECLIST, export_execlist);
-            export_text = export_text.Replace(IMPORTTMPL_PRIORITY, (priority+1).ToString());
+            export_text = export_text.Replace(IMPORTTMPL_PRIORITY, (pritop+1000).ToString());
             export_text = export_text.Replace(IMPORTTMPL_TYPE_NAME, type_name);
             export_text = export_text.Replace(IMPORTTMPL_TYPE_SHORTNAME, type_short_name);
             export_text = export_text.Replace(IMPORTTMPL_TYPE_CAPNAME, type_cap_name);
